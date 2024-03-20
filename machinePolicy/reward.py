@@ -136,7 +136,3 @@ class GetLikelihoodRewardFunction:
         probNextState = sum([self.transitionTable[state][action][nextState] * self.goalPolicies[goal][state][action]
                              for action in possibleActionsToNextState])
         return(probNextState)
-
-
-if __name__ == '__main__':
-    test_sigmoid_distance_punish()
