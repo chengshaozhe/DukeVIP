@@ -93,8 +93,8 @@ class NormalTrial():
             realPlayer1Grid = self.checkBoundary(noisePlayer1Grid)
             realPlayer2Grid = self.checkBoundary(noisePlayer2Grid)
             self.drawNewState(bean1Grid, bean2Grid, realPlayer1Grid, realPlayer2Grid, ifnoisePlayer1, ifnoisePlayer2)
-            trajectoryPlayer1.append(list(realPlayer1Grid))
-            trajectoryPlayer2.append(list(realPlayer2Grid))
+            trajectoryPlayer1.append(tuple(realPlayer1Grid))
+            trajectoryPlayer2.append(tuple(realPlayer2Grid))
             realActionListPlayer1.append(realAction)
             realActionListPlayer2.append(realAction2)
 
@@ -102,23 +102,16 @@ class NormalTrial():
 
         pg.time.wait(500)
         pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])
-        results["bean1GridX"] = bean1Grid[0]
-        results["bean1GridY"] = bean1Grid[1]
-        results["bean2GridX"] = bean2Grid[0]
-        results["bean2GridY"] = bean2Grid[1]
-        results["player1GridX"] = initialPlayer1Grid[0]
-        results["player1GridY"] = initialPlayer1Grid[1]
-        results["player2GridX"] = initialPlayer2Grid[0]
-        results["player2GridY"] = initialPlayer2Grid[1]
+        results["aimActionPlayer1"] = str(aimActionListPlayer1)
         results["reactionTime"] = str(reactionTime)
+
+        results["aimActionPlayer2"] = str(aimActionListPlayer2)
         results["trajectoryPlayer1"] = str(trajectoryPlayer1)
         results["trajectoryPlayer2"] = str(trajectoryPlayer2)
-        results["aimActionPlayer1"] = str(aimActionListPlayer1)
-        results["aimActionPlayer2"] = str(aimActionListPlayer2)
-        results["realActionPlayer1"] = str(aimActionListPlayer1)
-        results["realActionPlayer2"] = str(aimActionListPlayer2)
-        results["noisePointPlayer1"] = str(noiseStepPlayer1)
-        results["noisePointPlayer2"] = str(noiseStepPlayer2)
+        # results["realActionPlayer1"] = str(aimActionListPlayer1)
+        # results["realActionPlayer2"] = str(aimActionListPlayer2)
+        # results["noisePointPlayer1"] = str(noiseStepPlayer1)
+        # results["noisePointPlayer2"] = str(noiseStepPlayer2)
         results["goalPlayer1"] = str(goalListPlayer1)
         results["goalPlayer2"] = str(goalListPlayer2)
         return results

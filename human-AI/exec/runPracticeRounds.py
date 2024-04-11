@@ -62,7 +62,7 @@ def main():
     writerPath = resultsPath + "Prac"+ experimentValues["name"] + '.csv'
     writer = WriteDataFrameToCSV(writerPath)
     introductionImage = pg.image.load(picturePath + 'introduction.png')
-    finishImage = pg.image.load(picturePath + 'finish.jpeg')
+    finishImage = pg.image.load(picturePath + 'finish.png')
     windImage = pg.image.load(picturePath + 'leftwind.png')
     readyImage = pg.image.load(picturePath + 'ready.png')
 

@@ -20,25 +20,28 @@ class Experiment():
         self.runAIPolicy = runAIPolicy
 
     def __call__(self, noiseDesignValuesPlayer1, noiseDesignValuesPlayer2, shapeDesignValues):
-        for trialIndex in range(len(noiseDesignValuesPlayer1)):
-            player1Grid, player2Grid, bean1Grid, bean2Grid, direction = self.updateWorld(
-                shapeDesignValues[trialIndex][0], shapeDesignValues[trialIndex][1])
+        for trialIndex, shapeDesignValue in enumerate(shapeDesignValues) :
+            results = self.experimentValues.copy()
+            player1Grid, player2Grid, target1Grid, target2Grid, direction = self.updateWorld(
+                shapeDesignValue[0], shapeDesignValue[1])
 
-            goalStates = [bean1Grid, bean2Grid]
+            results["initPlayer1Grid"] = str(player1Grid)
+            results["initPlayer2Grid"] = str(player2Grid)
+            results["target1Grid"] = str(target1Grid)
+            results["target2Grid"] = str(target2Grid)
+            # results["noiseNumber"] = noiseDesignValuesPlayer1[trialIndex]
+
+            goalStates = [target1Grid, target2Grid]
             AIPolicy = self.runAIPolicy(goalStates, obstacles=[])
 
             if isinstance(noiseDesignValuesPlayer1[trialIndex], int):
-                results = self.normalTrial(bean1Grid, bean2Grid, player1Grid, player2Grid, noiseDesignValuesPlayer1[trialIndex], noiseDesignValuesPlayer2[trialIndex],AIPolicy)
+                trialData = self.normalTrial(target1Grid, target2Grid, player1Grid, player2Grid, noiseDesignValuesPlayer1[trialIndex], noiseDesignValuesPlayer2[trialIndex], AIPolicy)
             else:
-                results = self.specialTrial(bean1Grid, bean2Grid, player1Grid,player2Grid,  noiseDesignValuesPlayer1[trialIndex], noiseDesignValuesPlayer2[trialIndex],AIPolicy)
-            results["noiseNumber"] = noiseDesignValuesPlayer1[trialIndex]
-            results["bottom"] = shapeDesignValues[trialIndex][0]
-            results["height"] = shapeDesignValues[trialIndex][1]
-            results["direction"] = direction
-            response = self.experimentValues.copy()
-            response.update(results)
-            responseDF = pd.DataFrame(response, index=[trialIndex])
-            self.writer(responseDF)
+                trialData = self.specialTrial(target1Grid, target2Grid, player1Grid,player2Grid,  noiseDesignValuesPlayer1[trialIndex], noiseDesignValuesPlayer2[trialIndex], AIPolicy)
+
+            results.update(trialData)
+            resultsDF = pd.DataFrame(results, index=[trialIndex])
+            self.writer(resultsDF)
 
 class PracExperiment():
     def __init__(self, pracTrial, writer, experimentValues, updateWorld, drawImage, resultsPath):
@@ -51,10 +54,10 @@ class PracExperiment():
 
     def __call__(self, shapeDesignValues):
         for trialIndex,shapeDesignValue in enumerate(shapeDesignValues) :
-            player1Grid, player2Grid, bean1Grid, bean2Grid, direction = self.updateWorld(
+            player1Grid, player2Grid, target1Grid, target2Grid, direction = self.updateWorld(
                shapeDesignValue[0],shapeDesignValue[1])
 
-            results = self.pracTrial(player1Grid, bean1Grid)
+            results = self.pracTrial(player1Grid, target1Grid)
 
             response = self.experimentValues.copy()
             response.update(results)

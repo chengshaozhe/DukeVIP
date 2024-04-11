@@ -76,7 +76,7 @@ def main():
 
     introductionImage = pg.transform.scale(introductionImage, (screenWidth, screenHeight))
     readyImage = pg.transform.scale(readyImage, (screenWidth, screenHeight))
-    finishImage = pg.transform.scale(finishImage, (int(screenWidth * 2 / 3), int(screenHeight / 4)))
+    finishImage = pg.transform.scale(finishImage, (screenWidth, screenHeight))
     drawBackground = DrawBackground(screen, gridSize, leaveEdgeSpace, backgroundColor, lineColor, lineWidth, textColorTuple)
     drawText = DrawText(screen, drawBackground, textSize)
     drawNewState = DrawNewState(screen, drawBackground, targetColor, playerColor, player2Color, targetRadius, playerRadius, windImage)
@@ -100,8 +100,9 @@ def main():
     normalTrial = NormalTrial(controller, drawNewState, drawText, normalNoise, checkBoundary)
     specialTrial = SpecialTrial(controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary)
     experiment = Experiment(normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath, runAIPolicy)
-    drawImage(introductionImage)
-    # drawLinkImage(readyImage, 500) # 5000
+
+    # drawImage(introductionImage) # need to
+    # drawLinkImage(readyImage, 2000) # 5000
 
     experiment(noiseDesignValuesPlayer1, noiseDesignValuesPlayer2, shapeDesignValues)
     drawImage(finishImage)
