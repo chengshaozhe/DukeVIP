@@ -103,6 +103,27 @@ class AwayFromTheGoalNoise():
         realPlayerGrid = tuple(np.add(playerGrid, realAction))
         return realPlayerGrid, firstIntentionFlag, noiseStep, realAction, ifnoise
 
+class SingleController():
+    def __init__(self, keyBoradActionDict):
+        self.keyBoradActionDict = keyBoradActionDict
+
+    def __call__(self, playerGrid):
+        action = [0, 0]
+        pause = True
+        while pause:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        pg.quit()
+                        exit()
+                if event.type == pg.KEYDOWN:
+                    if event.key in self.keyBoradActionDict.keys():
+                        action = self.keyBoradActionDict[event.key]
+                        aimePlayerGrid = tuple(np.add(playerGrid, action))
+                        pause = False
+        return aimePlayerGrid, action
 
 class Controller():
     def __init__(self, gridSize, softmaxBeta):

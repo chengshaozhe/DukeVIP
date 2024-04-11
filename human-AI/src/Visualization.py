@@ -72,24 +72,8 @@ class DrawNewState():
                                                    int((playerPosition[1] + self.leaveEdgeSpace + 0.5) * self.heightLineStepSpace)], self.playerRadius)
             pg.draw.circle(self.screen, color2, [int((player2Position[0] + self.leaveEdgeSpace + 0.5) * self.widthLineStepSpace),
                                                            int((player2Position[1] + self.leaveEdgeSpace + 0.5) * self.heightLineStepSpace)], self.playerRadius)
-            # sizeScale = 5
-        # self.noiseImage = pg.transform.scale(self.noiseImage, (sizeScale * self.playerRadius, sizeScale * self.playerRadius))
-        # if ifnoisePlayer1:
-        #     self.screen.blit(self.noiseImage, (
-        #         int((playerPosition[0] + self.leaveEdgeSpace + 0.5) * self.widthLineStepSpace) - 1/2 * sizeScale * self.playerRadius,
-        #         int((playerPosition[1] + self.leaveEdgeSpace + 0.5) * self.heightLineStepSpace) - 1/2 * sizeScale *  self.playerRadius,
-        #         int((playerPosition[0] + self.leaveEdgeSpace + 0.5) * self.widthLineStepSpace) + 1/2 * sizeScale * self.playerRadius,
-        #         int((playerPosition[1] + self.leaveEdgeSpace + 0.5) * self.heightLineStepSpace)+ 1/2 * sizeScale * self.playerRadius,))
-        # if ifnoisePlayer2:
-        #     self.screen.blit(self.noiseImage, (
-        #         int((player2Position[0] + self.leaveEdgeSpace + 0.5) * self.widthLineStepSpace) - 1/2 * sizeScale * self.playerRadius,
-        #         int((player2Position[1] + self.leaveEdgeSpace + 0.5) * self.heightLineStepSpace) - 1/2 * sizeScale * self.playerRadius,
-        #         int((player2Position[0] + self.leaveEdgeSpace + 0.5) * self.widthLineStepSpace) + 1/2 * sizeScale * self.playerRadius,
-        #         int((player2Position[1] + self.leaveEdgeSpace + 0.5) * self.heightLineStepSpace)+ 1/2 * sizeScale * self.playerRadius,))
-        pg.display.flip()
 
-        # if ifnoisePlayer1 == 1 or ifnoisePlayer2 == 1:
-        #     pg.time.wait(500)
+        pg.display.flip()
 
 
         return
@@ -159,32 +143,37 @@ class DrawText():
         pg.display.flip()
         return
 
+class PracDrawNewState():
+    def __init__(self, screen, drawBackground, targetColor, playerColor, targetRadius, playerRadius):
+        self.screen = screen
+        self.drawBackground = drawBackground
+        self.targetColor = targetColor
+        self.playerColor = playerColor
+        self.targetRadius = targetRadius
+        self.playerRadius = playerRadius
+        self.leaveEdgeSpace = drawBackground.leaveEdgeSpace
+        self.widthLineStepSpace = drawBackground.widthLineStepSpace
+        self.heightLineStepSpace = drawBackground.heightLineStepSpace
 
-if __name__ == "__main__":
-    pg.init()
-    screenWidth = 720
-    screenHeight = 720
-    screen = pg.display.set_mode((screenWidth, screenHeight))
-    gridSize = 20
-    leaveEdgeSpace = 2
-    lineWidth = 2
-    backgroundColor = [188, 188, 0]
-    lineColor = [255, 255, 255]
-    targetColor = [255, 50, 50]
-    playerColor = [50, 50, 255]
-    targetRadius = 10
-    playerRadius = 10
-    targetPositionA = [5, 5]
-    targetPositionB = [15, 5]
-    playerPosition = [10, 15]
-    picturePath = os.path.abspath(os.path.join(os.getcwd(), os.pardir)) + '/Pictures/'
-    restImage = pg.image.load(picturePath + 'rest.png')
-    currentTime = 138456
-    currentScore = 5
-    textColorTuple = (255, 50, 50)
-    drawBackground = DrawBackground(screen, gridSize, leaveEdgeSpace, backgroundColor, lineColor, lineWidth, textColorTuple)
-    drawNewState = DrawNewState(screen, drawBackground, targetColor, playerColor, targetRadius, playerRadius)
-    drawImage = DrawImage(screen)
-    drawBackground(currentTime, currentScore)
-    pg.time.wait(5000)
-    pg.quit()
+    def __call__(self, targetPositionA, playerPosition):
+
+        self.drawBackground()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    pg.quit()
+                    exit()
+
+        pg.draw.rect(self.screen, self.targetColor,
+                     [int((targetPositionA[0] + self.leaveEdgeSpace + 0.2) * self.widthLineStepSpace),
+                      int((targetPositionA[1] + self.leaveEdgeSpace + 0.2) * self.heightLineStepSpace),
+                      self.targetRadius * 2, self.targetRadius * 2])
+
+        pg.draw.circle(self.screen, self.playerColor, [int((playerPosition[0] + self.leaveEdgeSpace + 0.5) * self.widthLineStepSpace),int((playerPosition[1] + self.leaveEdgeSpace + 0.5) * self.heightLineStepSpace)], self.playerRadius)
+
+        pg.display.flip()
+
+
+        return

@@ -21,7 +21,6 @@ class Experiment():
 
     def __call__(self, noiseDesignValuesPlayer1, noiseDesignValuesPlayer2, shapeDesignValues):
         for trialIndex in range(len(noiseDesignValuesPlayer1)):
-
             player1Grid, player2Grid, bean1Grid, bean2Grid, direction = self.updateWorld(
                 shapeDesignValues[trialIndex][0], shapeDesignValues[trialIndex][1])
 
@@ -36,6 +35,27 @@ class Experiment():
             results["bottom"] = shapeDesignValues[trialIndex][0]
             results["height"] = shapeDesignValues[trialIndex][1]
             results["direction"] = direction
+            response = self.experimentValues.copy()
+            response.update(results)
+            responseDF = pd.DataFrame(response, index=[trialIndex])
+            self.writer(responseDF)
+
+class PracExperiment():
+    def __init__(self, pracTrial, writer, experimentValues, updateWorld, drawImage, resultsPath):
+        self.pracTrial = pracTrial
+        self.writer = writer
+        self.experimentValues = experimentValues
+        self.updateWorld = updateWorld
+        self.drawImage = drawImage
+        self.resultsPath = resultsPath
+
+    def __call__(self, shapeDesignValues):
+        for trialIndex,shapeDesignValue in enumerate(shapeDesignValues) :
+            player1Grid, player2Grid, bean1Grid, bean2Grid, direction = self.updateWorld(
+               shapeDesignValue[0],shapeDesignValue[1])
+
+            results = self.pracTrial(player1Grid, bean1Grid)
+
             response = self.experimentValues.copy()
             response.update(results)
             responseDF = pd.DataFrame(response, index=[trialIndex])

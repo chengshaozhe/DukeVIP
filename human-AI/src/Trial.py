@@ -215,3 +215,64 @@ class SpecialTrial():
         results["goalPlayer2"] = str(goalListPlayer2)
         return results
 
+
+def checkTerminationOfPracTrial(bean1Grid, humanGrid):
+    if (np.linalg.norm(np.array(humanGrid) - np.array(bean1Grid), ord=1)) == 0:
+        pause = False
+    else:
+        pause = True
+    return pause
+
+class PracTrial():
+    def __init__(self, controller, drawNewState, drawText, checkBoundary):
+        self.controller = controller
+        self.drawNewState = drawNewState
+        self.drawText = drawText
+        self.checkBoundary = checkBoundary
+
+    def __call__(self, player1Grid, bean1Grid):
+        initialPlayer1Grid = player1Grid
+
+        results = co.OrderedDict()
+        stepCount = 0
+        reactionTime = list()
+        aimActionListPlayer1 = list()
+        trajectoryPlayer1 = [initialPlayer1Grid]
+
+        self.drawText("+", [0, 0, 0], [7, 7])
+        pg.time.wait(1300)
+        self.drawNewState(bean1Grid, initialPlayer1Grid)
+        pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
+
+        realPlayer1Grid = initialPlayer1Grid
+
+        pause = True
+        while pause:
+            initialTime = time.get_ticks()
+
+            aimPlayer1Grid, aimAction = self.controller(realPlayer1Grid)
+            reactionTime.append(time.get_ticks() - initialTime)
+
+            aimActionListPlayer1.append(aimAction)
+
+            stepCount = stepCount + 1
+
+            realPlayer1Grid = self.checkBoundary(aimPlayer1Grid)
+
+            self.drawNewState(bean1Grid, realPlayer1Grid)
+
+            trajectoryPlayer1.append(list(realPlayer1Grid))
+
+            pause = checkTerminationOfPracTrial(bean1Grid, realPlayer1Grid)
+
+        pg.time.wait(500)
+        pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])
+        results["bean1GridX"] = bean1Grid[0]
+        results["bean1GridY"] = bean1Grid[1]
+        results["player1GridX"] = initialPlayer1Grid[0]
+        results["player1GridY"] = initialPlayer1Grid[1]
+        results["reactionTime"] = str(reactionTime)
+        results["trajectoryPlayer1"] = str(trajectoryPlayer1)
+        results["aimActionPlayer1"] = str(aimActionListPlayer1)
+        return results
+
