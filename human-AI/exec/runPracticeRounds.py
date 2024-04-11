@@ -24,8 +24,8 @@ def main():
     height = [5, 6, 7]
     allShapeDesignValues = createShapeDesignValue(bottom, height)
 
-    numOfPracTrial = 5
-    expDesignValues = random.sample(allShapeDesignValues,numOfPracTrial)
+    numOfPracRounds = 5
+    expDesignValues = random.sample(allShapeDesignValues, numOfPracRounds)
 
     direction = [0, 90, 180, 270]
     updateWorld = UpdateWorld(direction, gridSize)
