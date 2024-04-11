@@ -42,7 +42,6 @@ class NormalTrial():
         initialPlayer1Grid = player1Grid
         initialPlayer2Grid = player2Grid
 
-        initialTime = time.get_ticks()
         reactionTime = list()
         trajectoryPlayer1 = [initialPlayer1Grid]
         trajectoryPlayer2 = [initialPlayer2Grid]
@@ -71,7 +70,6 @@ class NormalTrial():
         realPlayer1Grid = initialPlayer1Grid
         realPlayer2Grid = initialPlayer2Grid
 
-        self.drawNewState(bean1Grid, bean2Grid, initialPlayer1Grid, initialPlayer2Grid, ifnoisePlayer1, ifnoisePlayer2)
         pause = True
 
         while pause:
