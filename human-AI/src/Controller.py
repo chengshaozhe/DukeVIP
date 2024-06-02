@@ -53,7 +53,6 @@ class SoftmaxPolicy:
 class NormalNoise():
     def __init__(self, controller):
         self.actionSpace = controller.actionSpace
-        self.gridSize = controller.gridSize
 
     def __call__(self, playerGrid, action, trajectory, noiseStep, stepCount):
         ifnoise = 0
@@ -67,7 +66,6 @@ class NormalNoise():
                 ifnoise = 1
             else:
                 realAction = action
-
         else:
             realAction = action
         realPlayerGrid = tuple(np.add(playerGrid, realAction))
@@ -89,7 +87,6 @@ def selectActionMinDistanceFromTarget(goal, playerGrid, bean1Grid, bean2Grid, ac
 class AwayFromTheGoalNoise():
     def __init__(self, controller):
         self.actionSpace = controller.actionSpace
-        self.gridSize = controller.gridSize
 
     def __call__(self, playerGrid, bean1Grid, bean2Grid, action, goal, firstIntentionFlag, noiseStep, stepCount):
         ifnoise = 0
@@ -106,6 +103,8 @@ class AwayFromTheGoalNoise():
 class SingleController():
     def __init__(self, keyBoradActionDict):
         self.keyBoradActionDict = keyBoradActionDict
+        self.actionDict = {pg.K_UP: (0, -1), pg.K_DOWN: (0, 1), pg.K_LEFT: (-1, 0), pg.K_RIGHT: (1, 0)}
+        self.actionSpace = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
     def __call__(self, playerGrid):
         action = [0, 0]

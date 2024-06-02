@@ -8,7 +8,7 @@ from itertools import permutations
 from random import shuffle, choice
 
 
-class Experiment():
+class ExperimentJoint():
     def __init__(self, normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath, runAIPolicy):
         self.normalTrial = normalTrial
         self.specialTrial = specialTrial
@@ -43,7 +43,39 @@ class Experiment():
             resultsDF = pd.DataFrame(results, index=[trialIndex])
             self.writer(resultsDF)
 
-class PracExperiment():
+
+class ExperimentBumps():
+    def __init__(self, normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath):
+        self.normalTrial = normalTrial
+        self.specialTrial = specialTrial
+        self.writer = writer
+        self.experimentValues = experimentValues
+        self.updateWorld = updateWorld
+        self.drawImage = drawImage
+        self.resultsPath = resultsPath
+
+    def __call__(self, noiseDesignValues, shapeDesignValues):
+        for trialIndex in range(len(noiseDesignValues)):
+            results = self.experimentValues.copy()
+
+            playerGrid, bean1Grid, bean2Grid, direction = self.updateWorld(shapeDesignValues[trialIndex][0], shapeDesignValues[trialIndex][1])
+
+            results["initPlayer1Grid"] = str(playerGrid)
+            results["target1Grid"] = str(bean1Grid)
+            results["target2Grid"] = str(bean2Grid)
+            results["noiseNumber"] = noiseDesignValues[trialIndex]
+
+            if isinstance(noiseDesignValues[trialIndex], int):
+                results = self.normalTrial(bean1Grid, bean2Grid, playerGrid, noiseDesignValues[trialIndex])
+            else:
+                results = self.specialTrial(bean1Grid, bean2Grid, playerGrid, noiseDesignValues[trialIndex])
+
+            response = self.experimentValues.copy()
+            response.update(results)
+            responseDF = pd.DataFrame(response, index=[trialIndex])
+            self.writer(responseDF)
+
+class PracExperiment1P1G():
     def __init__(self, pracTrial, writer, experimentValues, updateWorld, drawImage, resultsPath):
         self.pracTrial = pracTrial
         self.writer = writer
