@@ -66,14 +66,13 @@ class ExperimentBumps():
             results["noiseNumber"] = noiseDesignValues[trialIndex]
 
             if isinstance(noiseDesignValues[trialIndex], int):
-                results = self.normalTrial(bean1Grid, bean2Grid, playerGrid, noiseDesignValues[trialIndex])
+                trialData = self.normalTrial(bean1Grid, bean2Grid, playerGrid, noiseDesignValues[trialIndex])
             else:
-                results = self.specialTrial(bean1Grid, bean2Grid, playerGrid, noiseDesignValues[trialIndex])
+                trialData = self.specialTrial(bean1Grid, bean2Grid, playerGrid, noiseDesignValues[trialIndex])
 
-            response = self.experimentValues.copy()
-            response.update(results)
-            responseDF = pd.DataFrame(response, index=[trialIndex])
-            self.writer(responseDF)
+            results.update(trialData)
+            resultsDF = pd.DataFrame(results, index=[trialIndex])
+            self.writer(resultsDF)
 
 class PracExperiment1P1G():
     def __init__(self, pracTrial, writer, experimentValues, updateWorld, drawImage, resultsPath):

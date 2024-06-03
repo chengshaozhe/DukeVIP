@@ -69,7 +69,7 @@ def main():
     picturePath = os.path.abspath(os.path.join(os.getcwd(), os.pardir)) + '/pictures/'
     resultsPath = os.path.abspath(os.path.join(os.getcwd(), os.pardir)) + '/results/'
 
-    writerPath = resultsPath + "Joint-HumanAI" + experimentValues["name"] + '.csv'
+    writerPath = resultsPath + "Joint-HumanAI-" + experimentValues["name"] + '.csv'
     writer = WriteDataFrameToCSV(writerPath)
     introductionImage = pg.image.load(picturePath + 'introduction.png')
     finishImage = pg.image.load(picturePath + 'finish.png')
@@ -77,8 +77,8 @@ def main():
     readyImage = pg.image.load(picturePath + 'ready.png')
 
     introductionImage = pg.transform.scale(introductionImage, (screenWidth, screenHeight))
-    readyImage = pg.transform.scale(readyImage, (screenWidth, screenHeight))
-    finishImage = pg.transform.scale(finishImage, (screenWidth, screenHeight))
+    # readyImage = pg.transform.scale(readyImage, (screenWidth, screenHeight))
+    # finishImage = pg.transform.scale(finishImage, (screenWidth, screenHeight))
     drawBackground = DrawBackground(screen, gridSize, leaveEdgeSpace, backgroundColor, lineColor, lineWidth, textColorTuple)
     drawText = DrawText(screen, drawBackground, textSize)
     drawNewState = DrawNewState2P2G(screen, drawBackground, targetColor, playerColor, player2Color, targetRadius, playerRadius, windImage)
@@ -105,6 +105,7 @@ def main():
     # drawImage(introductionImage) # need to
     # drawLinkImage(readyImage, 2000) # 5000
 
+    drawImage(readyImage)
     experiment(noiseDesignValuesPlayer1, noiseDesignValuesPlayer2, shapeDesignValues)
     drawImage(finishImage)
 

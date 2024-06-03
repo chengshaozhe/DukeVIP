@@ -78,12 +78,12 @@ class NormalTrial1P2G():
         realPlayerGrid = initialPlayerGrid
 
         pause = True
-        initialTime = time.get_ticks()
         while pause:
+            initialTime = time.get_ticks()
             aimPlayerGrid, aimAction = self.controller(realPlayerGrid)
             reactionTime.append(time.get_ticks() - initialTime)
-            stepCount = stepCount + 1
 
+            stepCount = stepCount + 1
             goal = inferGoal(trajectory[-1], aimPlayerGrid, bean1Grid, bean2Grid)
             noisePlayerGrid, aimAction, ifnoise = self.normalNoise(trajectory[-1], aimAction, trajectory, noiseStep, stepCount)
             realPlayerGrid = self.checkBoundary(noisePlayerGrid)
@@ -94,7 +94,7 @@ class NormalTrial1P2G():
                 pg.image.save(screen, self.saveImageDir + '/' + str(len(filenameList)) + '.png')
 
             goalList.append(goal)
-            trajectory.append(list(realPlayerGrid))
+            trajectory.append(tuple(realPlayerGrid))
             aimActionList.append(aimAction)
 
             pause = checkTerminationOfTrial(bean1Grid, bean2Grid, realPlayerGrid)
@@ -106,12 +106,6 @@ class NormalTrial1P2G():
             filenameList = os.listdir(self.saveImageDir)
             pg.image.save(screen, self.saveImageDir + '/' + str(len(filenameList)) + '.png')
 
-        results["bean1GridX"] = bean1Grid[0]
-        results["bean1GridY"] = bean1Grid[1]
-        results["bean2GridX"] = bean2Grid[0]
-        results["bean2GridY"] = bean2Grid[1]
-        results["playerGridX"] = initialPlayerGrid[0]
-        results["playerGridY"] = initialPlayerGrid[1]
         results["reactionTime"] = str(reactionTime)
         results["trajectory"] = str(trajectory)
         results["aimAction"] = str(aimActionList)
@@ -119,7 +113,7 @@ class NormalTrial1P2G():
         results["goal"] = str(goalList)
         return results
 
-class SpecialTrial():
+class SpecialTrial1P2G():
     def __init__(self, controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary, saveImageDir=None):
         self.controller = controller
         self.drawNewState = drawNewState
@@ -150,8 +144,8 @@ class SpecialTrial():
 
         realPlayerGrid = initialPlayerGrid
         pause = True
-        initialTime = time.get_ticks()
         while pause:
+            initialTime = time.get_ticks()
             aimPlayerGrid, aimAction = self.controller(realPlayerGrid)
             reactionTime.append(time.get_ticks() - initialTime)
 
@@ -167,8 +161,7 @@ class SpecialTrial():
             if self.saveImageDir:
                 filenameList = os.listdir(self.saveImageDir)
                 pg.image.save(screen, self.saveImageDir + '/' + str(len(filenameList)) + '.png')
-
-            trajectory.append(list(realPlayerGrid))
+            trajectory.append(tuple(realPlayerGrid))
             aimActionList.append(aimAction)
             goalList.append(goal)
 
@@ -180,12 +173,6 @@ class SpecialTrial():
             pg.image.save(screen, self.saveImageDir + '/' + str(len(filenameList)) + '.png')
 
         pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])
-        results["bean1GridX"] = bean1Grid[0]
-        results["bean1GridY"] = bean1Grid[1]
-        results["bean2GridX"] = bean2Grid[0]
-        results["bean2GridY"] = bean2Grid[1]
-        results["playerGridX"] = initialPlayerGrid[0]
-        results["playerGridY"] = initialPlayerGrid[1]
         results["reactionTime"] = str(reactionTime)
         results["trajectory"] = str(trajectory)
         results["aimAction"] = str(aimActionList)
@@ -348,14 +335,6 @@ class SpecialTrialHumanAI():
             pause = checkTerminationOfTrial(bean1Grid, bean2Grid, realPlayer1Grid, realPlayer2Grid)
         pg.time.wait(500)
         pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])
-        results["bean1GridX"] = bean1Grid[0]
-        results["bean1GridY"] = bean1Grid[1]
-        results["bean2GridX"] = bean2Grid[0]
-        results["bean2GridY"] = bean2Grid[1]
-        results["player1GridX"] = initialPlayer1Grid[0]
-        results["player1GridY"] = initialPlayer1Grid[1]
-        results["player2GridX"] = initialPlayer2Grid[0]
-        results["player2GridY"] = initialPlayer2Grid[1]
         results["reactionTime"] = str(reactionTime)
         results["trajectoryPlayer1"] = str(trajectoryPlayer1)
         results["trajectoryPlayer2"] = str(trajectoryPlayer2)
@@ -403,20 +382,14 @@ class PracTrial():
         pause = True
         while pause:
             initialTime = time.get_ticks()
-
             aimPlayer1Grid, aimAction = self.controller(realPlayer1Grid)
             reactionTime.append(time.get_ticks() - initialTime)
 
             aimActionListPlayer1.append(aimAction)
-
             stepCount = stepCount + 1
-
             realPlayer1Grid = self.checkBoundary(aimPlayer1Grid)
-
             self.drawNewState(bean1Grid, realPlayer1Grid)
-
             trajectoryPlayer1.append(list(realPlayer1Grid))
-
             pause = checkTerminationOfPracTrial(bean1Grid, realPlayer1Grid)
 
         pg.time.wait(500)
@@ -433,12 +406,13 @@ class PracTrial():
 
 
 class PracTrialFreePlay():
-    def __init__(self, normalNoise, controller, drawNewState, drawText, checkBoundary):
+    def __init__(self, normalNoise, controller, drawNewState, drawText, checkBoundary, playTime):
         self.normalNoise = normalNoise
         self.controller = controller
         self.drawNewState = drawNewState
         self.drawText = drawText
         self.checkBoundary = checkBoundary
+        self.playTime = playTime
 
 
     def __call__(self, player1Grid, bean1Grid):
@@ -450,19 +424,16 @@ class PracTrialFreePlay():
         aimActionListPlayer1 = list()
         trajectoryPlayer1 = [initialPlayer1Grid]
 
-        self.drawText("+", [0, 0, 0], [7, 7])
-        pg.time.wait(1300)
+        # self.drawText("+", [0, 0, 0], [7, 7])
+        # pg.time.wait(1300)
         self.drawNewState([], initialPlayer1Grid)
         pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
 
         realPlayerGrid = initialPlayer1Grid
         trajectory = []
 
-        noiseSteps = [random.randint(i-10, i-1) for i in range(10, 201, 10)]
-        print(noiseSteps)
-
         initialTime = time.get_ticks()
-        while time.get_ticks() - initialTime < 30000:
+        while time.get_ticks() - initialTime < self.playTime:
 
             aimPlayer1Grid, aimAction = self.controller(realPlayerGrid)
             noisePlayerGrid, aimAction, ifnoise = self.normalNoise(realPlayerGrid, aimAction, trajectory, noiseSteps, stepCount)
@@ -473,7 +444,6 @@ class PracTrialFreePlay():
             aimActionListPlayer1.append(aimAction)
             stepCount = stepCount + 1
             self.drawNewState([], realPlayerGrid)
-
 
         pg.time.wait(500)
         pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])

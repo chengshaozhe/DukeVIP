@@ -19,6 +19,7 @@ from machinePolicy.valueIteration import RunVI
 
 def main():
     gridSize = 15
+    playTime = 30000
 
     bottom = [4, 6, 8]
     height = [5, 6, 7]
@@ -59,7 +60,7 @@ def main():
     picturePath = os.path.abspath(os.path.join(os.getcwd(), os.pardir)) + '/pictures/'
     resultsPath = os.path.abspath(os.path.join(os.getcwd(), os.pardir)) + '/results/'
 
-    writerPath = resultsPath + "Prac0"+ experimentValues["name"] + '.csv'
+    writerPath = resultsPath + "Prac-0-"+ experimentValues["name"] + '.csv'
     writer = WriteDataFrameToCSV(writerPath)
     introductionImage = pg.image.load(picturePath + 'introduction.png')
     finishImage = pg.image.load(picturePath + 'finish.png')
@@ -67,8 +68,8 @@ def main():
     readyImage = pg.image.load(picturePath + 'ready.png')
 
     introductionImage = pg.transform.scale(introductionImage, (screenWidth, screenHeight))
-    readyImage = pg.transform.scale(readyImage, (screenWidth, screenHeight))
-    finishImage = pg.transform.scale(finishImage, (screenWidth, screenHeight))
+    # readyImage = pg.transform.scale(readyImage, (screenWidth, screenHeight))
+    # finishImage = pg.transform.scale(finishImage, (screenWidth, screenHeight))
     drawBackground = DrawBackground(screen, gridSize, leaveEdgeSpace, backgroundColor, lineColor, lineWidth, textColorTuple)
     drawText = DrawText(screen, drawBackground, textSize)
     drawNewState = DrawNewState1P1G(screen, drawBackground, targetColor, playerColor, targetRadius, playerRadius)
@@ -82,11 +83,12 @@ def main():
     checkBoundary = CheckBoundary([0, gridSize - 1], [0, gridSize - 1])
     normalNoise = NormalNoise(controller)
 
-    pracTrial = PracTrialFreePlay(normalNoise, controller, drawNewState, drawText, checkBoundary)
+    pracTrial = PracTrialFreePlay(normalNoise, controller, drawNewState, drawText, checkBoundary, playTime)
     experiment = PracExperiment1P1G(pracTrial, writer, experimentValues, updateWorld, drawImage, resultsPath)
 
 # start
     # drawImage(introductionImage)
+    drawImage(readyImage)
     experiment(expDesignValues)
     drawImage(finishImage)
 

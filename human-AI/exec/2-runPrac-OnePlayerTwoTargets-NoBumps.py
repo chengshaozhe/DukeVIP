@@ -57,7 +57,7 @@ def main():
 
     experimentValues = co.OrderedDict()
     experimentValues["name"] = 'test'
-    writerPath = resultsPath + "Prac2"+ experimentValues["name"] + '.csv'
+    writerPath = resultsPath + "Prac-2-"+ experimentValues["name"] + '.csv'
     writer = WriteDataFrameToCSV(writerPath)
     introductionImage = pg.image.load(picturePath + 'introduction.png')
     finishImage = pg.image.load(picturePath + 'finish.png')
@@ -65,8 +65,8 @@ def main():
     readyImage = pg.image.load(picturePath + 'ready.png')
 
     introductionImage = pg.transform.scale(introductionImage, (screenWidth, screenHeight))
-    readyImage = pg.transform.scale(readyImage, (screenWidth, screenHeight))
-    finishImage = pg.transform.scale(finishImage, (screenWidth, screenHeight))
+    # readyImage = pg.transform.scale(readyImage, (screenWidth, screenHeight))
+    # finishImage = pg.transform.scale(finishImage, (screenWidth, screenHeight))
     drawBackground = DrawBackground(screen, gridSize, leaveEdgeSpace, backgroundColor, lineColor, lineWidth, textColorTuple)
     drawText = DrawText(screen, drawBackground, textSize)
     drawNewState = DrawNewState1P2G(screen, drawBackground, targetColor, playerColor, targetRadius, playerRadius)
@@ -84,6 +84,7 @@ def main():
     specialTrial = SpecialTrial(controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary)
     experiment = ExperimentBumps(normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath)
     # drawImage(introductionImage)
+    drawImage(readyImage)
     experiment(noiseDesignValues, shapeDesignValues)
     drawImage(finishImage)
 
