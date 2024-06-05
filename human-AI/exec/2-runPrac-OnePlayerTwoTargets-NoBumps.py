@@ -50,8 +50,8 @@ def main():
     lineColor = [0, 0, 0]
     targetColor = [255, 50, 50]
     playerColor = [50, 50, 255]
-    targetRadius = 10
-    playerRadius = 10
+    targetRadius = int(1/60 * screenWidth)
+    playerRadius = int(1/60 * screenWidth)
     textColorTuple = (255, 50, 50)
     textSize = int(1/14 * screenWidth)
 

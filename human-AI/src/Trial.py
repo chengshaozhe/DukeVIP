@@ -438,7 +438,6 @@ class PracTrialFreePlay():
 
             aimPlayer1Grid, aimAction = self.controller(realPlayerGrid)
             noisePlayerGrid, aimAction, ifnoise = self.normalNoise(realPlayerGrid, aimAction, trajectory, noiseSteps, stepCount)
-            print(stepCount, ifnoise)
 
             realPlayerGrid = self.checkBoundary(noisePlayerGrid)
             reactionTime.append(time.get_ticks() - initialTime)
