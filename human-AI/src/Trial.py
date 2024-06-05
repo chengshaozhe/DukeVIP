@@ -432,6 +432,7 @@ class PracTrialFreePlay():
         realPlayerGrid = initialPlayer1Grid
         trajectory = []
 
+        noiseSteps = [random.randint(i-10, i-1) for i in range(10, 201, 10)]
         initialTime = time.get_ticks()
         while time.get_ticks() - initialTime < self.playTime:
 

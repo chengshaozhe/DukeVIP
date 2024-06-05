@@ -48,12 +48,12 @@ class DrawNewState1P2G():
                 if event.key == pg.K_ESCAPE:
                     pg.quit()
                     exit()
-        pg.draw.rect(self.screen, self.targetColor, [np.int((targetPositionA[0] + self.leaveEdgeSpace + 0.2) * self.widthLineStepSpace),
-                                                     np.int((targetPositionA[1] + self.leaveEdgeSpace + 0.2) * self.heightLineStepSpace), self.targetRadius * 2, self.targetRadius * 2])
-        pg.draw.rect(self.screen, self.targetColor, [np.int((targetPositionB[0] + self.leaveEdgeSpace + 0.2) * self.widthLineStepSpace),
-                                                     np.int((targetPositionB[1] + self.leaveEdgeSpace + 0.2) * self.heightLineStepSpace), self.targetRadius * 2, self.targetRadius * 2])
-        pg.draw.circle(self.screen, self.playerColor, [np.int((playerPosition[0] + self.leaveEdgeSpace + 0.5) * self.widthLineStepSpace),
-                                                       np.int((playerPosition[1] + self.leaveEdgeSpace + 0.5) * self.heightLineStepSpace)], self.playerRadius)
+        pg.draw.rect(self.screen, self.targetColor, [int((targetPositionA[0] + self.leaveEdgeSpace + 0.2) * self.widthLineStepSpace),
+                                                     int((targetPositionA[1] + self.leaveEdgeSpace + 0.2) * self.heightLineStepSpace), self.targetRadius * 2, self.targetRadius * 2])
+        pg.draw.rect(self.screen, self.targetColor, [int((targetPositionB[0] + self.leaveEdgeSpace + 0.2) * self.widthLineStepSpace),
+                                                     int((targetPositionB[1] + self.leaveEdgeSpace + 0.2) * self.heightLineStepSpace), self.targetRadius * 2, self.targetRadius * 2])
+        pg.draw.circle(self.screen, self.playerColor, [int((playerPosition[0] + self.leaveEdgeSpace + 0.5) * self.widthLineStepSpace),
+                                                       int((playerPosition[1] + self.leaveEdgeSpace + 0.5) * self.heightLineStepSpace)], self.playerRadius)
         pg.display.flip()
         return self.screen
 

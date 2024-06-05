@@ -13,7 +13,7 @@ from src.Visualization import DrawBackground, DrawNewState1P2G, DrawImage, DrawT
 from src.Controller import SingleController, NormalNoise, AwayFromTheGoalNoise, CheckBoundary
 from src.UpdateWorld import *
 from src.Writer import WriteDataFrameToCSV
-from src.Trial import NormalTrial1P2G, SpecialTrial
+from src.Trial import NormalTrial1P2G, SpecialTrial1P2G
 from src.Experiment import ExperimentBumps
 
 
@@ -41,8 +41,8 @@ def main():
         noiseDesignValues = [0]*numberOfTrials
 
     pg.init()
-    screenWidth = 600
-    screenHeight = 600
+    screenWidth = 800
+    screenHeight = 800
     screen = pg.display.set_mode((screenWidth, screenHeight))
     leaveEdgeSpace = 2
     lineWidth = 1
@@ -81,7 +81,7 @@ def main():
     normalNoise = NormalNoise(controller)
     awayFromTheGoalNoise = AwayFromTheGoalNoise(controller)
     normalTrial = NormalTrial1P2G(controller, drawNewState, drawText, normalNoise, checkBoundary)
-    specialTrial = SpecialTrial(controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary)
+    specialTrial = SpecialTrial1P2G(controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary)
     experiment = ExperimentBumps(normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath)
     # drawImage(introductionImage)
     drawImage(readyImage)
