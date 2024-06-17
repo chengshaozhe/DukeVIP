@@ -60,7 +60,7 @@ def main():
     picturePath = os.path.abspath(os.path.join(os.getcwd(), os.pardir)) + '/pictures/'
     resultsPath = os.path.abspath(os.path.join(os.getcwd(), os.pardir)) + '/results/'
 
-    writerPath = resultsPath + "Prac-0-"+ experimentValues["name"] + '.csv'
+    writerPath = resultsPath + "Prac-freePlay-"+ experimentValues["name"] + '.csv'
     writer = WriteDataFrameToCSV(writerPath)
     introductionImage = pg.image.load(picturePath + 'introduction.png')
     finishImage = pg.image.load(picturePath + 'finish.png')

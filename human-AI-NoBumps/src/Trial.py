@@ -389,15 +389,13 @@ class PracTrial():
             stepCount = stepCount + 1
             realPlayer1Grid = self.checkBoundary(aimPlayer1Grid)
             self.drawNewState(bean1Grid, realPlayer1Grid)
-            trajectoryPlayer1.append(list(realPlayer1Grid))
+            trajectoryPlayer1.append(tuple(realPlayer1Grid))
             pause = checkTerminationOfPracTrial(bean1Grid, realPlayer1Grid)
 
         pg.time.wait(500)
         pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])
-        results["bean1GridX"] = bean1Grid[0]
-        results["bean1GridY"] = bean1Grid[1]
-        results["player1GridX"] = initialPlayer1Grid[0]
-        results["player1GridY"] = initialPlayer1Grid[1]
+        results["beanGrid"] = str(bean1Grid)
+        results["playerGrid"] = str(initialPlayer1Grid)
         results["reactionTime"] = str(reactionTime)
         results["trajectoryPlayer1"] = str(trajectoryPlayer1)
         results["aimActionPlayer1"] = str(aimActionListPlayer1)
@@ -421,34 +419,32 @@ class PracTrialFreePlayNoBumps():
         stepCount = 0
         reactionTime = list()
         aimActionListPlayer1 = list()
-        trajectoryPlayer1 = [initialPlayer1Grid]
 
         self.drawNewState([], initialPlayer1Grid)
         pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
 
         realPlayerGrid = initialPlayer1Grid
-        trajectory = []
+        trajectory = [initialPlayer1Grid]
 
         initialTime = time.get_ticks()
         while time.get_ticks() - initialTime < self.playTime:
 
+            time0 = time.get_ticks()
             aimPlayerGrid, aimAction = self.controller(realPlayerGrid)
+            reactionTime.append(time.get_ticks() - time0)
 
             realPlayerGrid = self.checkBoundary(aimPlayerGrid)
-            reactionTime.append(time.get_ticks() - initialTime)
+            trajectory.append(realPlayerGrid)
             aimActionListPlayer1.append(aimAction)
             stepCount = stepCount + 1
             self.drawNewState([], realPlayerGrid)
 
         pg.time.wait(500)
         pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])
-        results["bean1GridX"] = bean1Grid[0]
-        results["bean1GridY"] = bean1Grid[1]
-        results["player1GridX"] = initialPlayer1Grid[0]
-        results["player1GridY"] = initialPlayer1Grid[1]
+        results["playerGrid"] = str(player1Grid)
         results["reactionTime"] = str(reactionTime)
-        results["trajectoryPlayer1"] = str(trajectoryPlayer1)
-        results["aimActionPlayer1"] = str(aimActionListPlayer1)
+        results["trajectory"] = str(trajectory)
+        results["aimActionPlayer"] = str(aimActionListPlayer1)
         return results
 
 

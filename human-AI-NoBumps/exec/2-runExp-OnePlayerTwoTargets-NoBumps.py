@@ -57,7 +57,7 @@ def main():
 
     experimentValues = co.OrderedDict()
     experimentValues["name"] = 'test'
-    writerPath = resultsPath + "1P2G-NoBumps-"+ experimentValues["name"] + '.csv'
+    writerPath = resultsPath + "Exp-1P2G-NoBumps-"+ experimentValues["name"] + '.csv'
     writer = WriteDataFrameToCSV(writerPath)
     introductionImage = pg.image.load(picturePath + 'introduction.png')
     finishImage = pg.image.load(picturePath + 'finish.png')
