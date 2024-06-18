@@ -24,7 +24,7 @@ def main():
 
     bottom = [4, 6, 8]
     height = [5, 6, 7]
-    shapeDesignValues = createShapeDesignValue(bottom, height)
+    allShapeDesignValues = createShapeDesignValue(bottom, height)
 
     noiseCondition = list(permutations([1, 2, 0], 3))
     noiseCondition.append((1, 1, 1))
@@ -33,9 +33,12 @@ def main():
     noiseDesignValuesPlayer1 = createNoiseDesignValue(noiseCondition, blockNumber)
     noiseDesignValuesPlayer2 = createNoiseDesignValue(noiseCondition, blockNumber)
 
+    numberOfTrials = 8
+    shapeDesignValues = random.sample(allShapeDesignValues, numberOfTrials)
+
     # no noise
     if noise == 0:
-        noiseDesignValuesPlayer1 = noiseDesignValuesPlayer2 = [0]*len(noiseDesignValuesPlayer2)
+        noiseDesignValuesPlayer1 = noiseDesignValuesPlayer2 = [0]*numberOfTrials
 
     direction = [0, 90, 180, 270]
     updateWorld = UpdateWorld(direction, gridSize)

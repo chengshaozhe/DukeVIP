@@ -55,10 +55,9 @@ class ExperimentBumps():
         self.resultsPath = resultsPath
 
     def __call__(self, noiseDesignValues, shapeDesignValues):
-        for trialIndex in range(len(noiseDesignValues)):
+        for trialIndex, shapeDesignValue in enumerate(shapeDesignValues):
             results = self.experimentValues.copy()
-
-            playerGrid, bean1Grid, bean2Grid, direction = self.updateWorld(shapeDesignValues[trialIndex][0], shapeDesignValues[trialIndex][1])
+            playerGrid, bean1Grid, bean2Grid, direction = self.updateWorld(shapeDesignValue[0], shapeDesignValue[1])
 
             results["initPlayer1Grid"] = str(playerGrid)
             results["target1Grid"] = str(bean1Grid)

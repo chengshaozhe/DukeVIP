@@ -25,8 +25,9 @@ def main():
     resultsPath = os.path.abspath(os.path.join(os.getcwd(), os.pardir)) + '/Results/'
 
     bottom = [4, 6, 8]
-    height = [6, 7, 8]
-    shapeDesignValues = createShapeDesignValue(bottom, height)
+    height = [5, 6, 7]
+    allShapeDesignValues = createShapeDesignValue(bottom, height)
+
     noiseCondition = list(permutations([1, 2, 0], 3))
     noiseCondition.append((1, 1, 1))
     blockNumber = 3
@@ -35,7 +36,9 @@ def main():
     updateWorld = UpdateWorld1P2G(direction, gridSize)
 
 
-    numberOfTrials = 10
+    numberOfTrials = 8
+    shapeDesignValues = random.sample(allShapeDesignValues, numberOfTrials)
+
     # no noise
     if noise == 0:
         noiseDesignValues = [0]*numberOfTrials
