@@ -21,8 +21,7 @@ def main():
 # game design
     gridSize = 15
 
-    # bottom = [4, 6, 8]
-    bottom = [8]
+    bottom = [4, 6, 8]
     height = [6, 7, 8]
     shapeDesignValues = createShapeDesignValue(bottom, height)
     direction = [0, 90, 180, 270]
@@ -76,7 +75,6 @@ def main():
     keyBoradActionDict = {pg.K_UP: (0, -1), pg.K_DOWN: (0, 1), pg.K_LEFT: (-1, 0), pg.K_RIGHT: (1, 0)}
     controller = SingleController(keyBoradActionDict)
     checkBoundary = CheckBoundary([0, gridSize - 1], [0, gridSize - 1])
-
 
     pushForwardNoise = PushForwardNoise(controller)
     pullBackNoise = PullBackNoise(controller)

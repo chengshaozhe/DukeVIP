@@ -45,7 +45,7 @@ def checkTerminationOfTrial2P2G(bean1Grid, bean2Grid, humanGrid, humanGrid2):
     return pause
 
 class Trial4Blocks():
-    def __init__(self, controller, drawNewState, drawText, checkBoundary,pushForwardNoise ,pullBackNoise,forceToCommitNoise):
+    def __init__(self, controller, drawNewState, drawText, checkBoundary, pushForwardNoise ,pullBackNoise,forceToCommitNoise):
         self.controller = controller
         self.drawNewState = drawNewState
         self.drawText = drawText
@@ -54,8 +54,7 @@ class Trial4Blocks():
         self.pullBackNoise = pullBackNoise
         self.forceToCommitNoise = forceToCommitNoise
 
-
-    def __call__(self, bean1Grid, bean2Grid, initPlayerGrid, noiseType, noiseDesignValuesCurrent):
+    def __call__(self, bean1Grid, bean2Grid, initPlayerGrid, noiseType, noiseDesignValuesRemained):
         results = co.OrderedDict()
         stepCount = 0
         reactionTime = list()
@@ -89,8 +88,11 @@ class Trial4Blocks():
             goalList.append(goal)
 
             ### decide when to focre?
-            conditionCount = noiseDesignValuesCurrent.count('forceCommit')
-            if conditionCount != 0 and sum(goalList) == 0 and stepCount >= 3: # if no intention revealed in n steps
+            isIntentionNotRevealed = sum(goalList) == 0
+            print(isIntentionNotRevealed)
+
+            conditionCount = noiseDesignValuesRemained.count('forceCommit')
+            if conditionCount != 0 and isIntentionNotRevealed and stepCount >= 3: # if no intention revealed in n steps
                 noiseType = "forceCommit"
                 ifModifedCondition = True
 
@@ -126,154 +128,17 @@ class Trial4Blocks():
 
         return results, noiseType, ifModifedCondition
 
-
-class NormalTrial1P2G():
-    def __init__(self, controller, drawNewState, drawText, normalNoise, checkBoundary, saveImageDir=None):
+class Trial4BlocksHumanAI():
+    def __init__(self, controller, drawNewState, drawText, checkBoundary, pushForwardNoise ,pullBackNoise,forceToCommitNoise):
         self.controller = controller
         self.drawNewState = drawNewState
         self.drawText = drawText
-        self.normalNoise = normalNoise
         self.checkBoundary = checkBoundary
-        self.saveImageDir = saveImageDir
+        self.pushForwardNoise = pushForwardNoise
+        self.pullBackNoise = pullBackNoise
+        self.forceToCommitNoise = forceToCommitNoise
 
-    def __call__(self, bean1Grid, bean2Grid, playerGrid, designValues):
-        stepCount = 0
-        reactionTime = list()
-        aimActionList = list()
-        goalList = list()
-        results = co.OrderedDict()
-
-        initialPlayerGrid = playerGrid
-        trajectory = [initialPlayerGrid]
-
-        totalSteps = int(np.linalg.norm(np.array(playerGrid) - np.array(bean1Grid), ord=1))
-        noiseStep = random.sample(list(range(1, totalSteps + 1)), designValues)
-
-        self.drawText("+", [0, 0, 0], [7, 7])
-        pg.time.wait(1300)
-        screen = self.drawNewState(bean1Grid, bean2Grid, initialPlayerGrid)
-        pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
-
-        if self.saveImageDir:
-            filenameList = os.listdir(self.saveImageDir)
-            pg.image.save(screen, self.saveImageDir + '/' + str(len(filenameList)) + '.png')
-
-        realPlayerGrid = initialPlayerGrid
-
-        pause = True
-        while pause:
-            initialTime = time.get_ticks()
-            aimPlayerGrid, aimAction = self.controller(realPlayerGrid)
-            reactionTime.append(time.get_ticks() - initialTime)
-
-            stepCount = stepCount + 1
-            goal = inferGoal(trajectory[-1], aimPlayerGrid, bean1Grid, bean2Grid)
-            noisePlayerGrid, aimAction, ifnoise = self.normalNoise(trajectory[-1], aimAction, trajectory, noiseStep, stepCount)
-            realPlayerGrid = self.checkBoundary(noisePlayerGrid)
-
-            screen = self.drawNewState(bean1Grid, bean2Grid, realPlayerGrid)
-            if self.saveImageDir:
-                filenameList = os.listdir(self.saveImageDir)
-                pg.image.save(screen, self.saveImageDir + '/' + str(len(filenameList)) + '.png')
-
-            goalList.append(goal)
-            trajectory.append(tuple(realPlayerGrid))
-            aimActionList.append(aimAction)
-
-            pause = checkTerminationOfTrial(bean1Grid, bean2Grid, realPlayerGrid)
-
-        pg.time.wait(500)
-        pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])
-
-        if self.saveImageDir:
-            filenameList = os.listdir(self.saveImageDir)
-            pg.image.save(screen, self.saveImageDir + '/' + str(len(filenameList)) + '.png')
-
-        results["reactionTime"] = str(reactionTime)
-        results["trajectory"] = str(trajectory)
-        results["aimAction"] = str(aimActionList)
-        results["noisePoint"] = str(noiseStep)
-        results["goal"] = str(goalList)
-        return results
-
-class SpecialTrial1P2G():
-    def __init__(self, controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary, saveImageDir=None):
-        self.controller = controller
-        self.drawNewState = drawNewState
-        self.drawText = drawText
-        self.awayFromTheGoalNoise = awayFromTheGoalNoise
-        self.checkBoundary = checkBoundary
-        self.saveImageDir = saveImageDir
-
-    def __call__(self, bean1Grid, bean2Grid, playerGrid, designValues):
-        initialPlayerGrid = playerGrid
-        initialTime = time.get_ticks()
-        reactionTime = list()
-        trajectory = [initialPlayerGrid]
-        results = co.OrderedDict()
-        aimActionList = list()
-        firstIntentionFlag = False
-        noiseStep = list()
-        stepCount = 0
-        goalList = list()
-        self.drawText("+", [0, 0, 0], [7, 7])
-        pg.time.wait(1300)
-        screen = self.drawNewState(bean1Grid, bean2Grid, initialPlayerGrid)
-        pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
-
-        if self.saveImageDir:
-            filenameList = os.listdir(self.saveImageDir)
-            pg.image.save(screen, self.saveImageDir + '/' + str(len(filenameList)) + '.png')
-
-        realPlayerGrid = initialPlayerGrid
-        pause = True
-        while pause:
-            initialTime = time.get_ticks()
-            aimPlayerGrid, aimAction = self.controller(realPlayerGrid)
-            reactionTime.append(time.get_ticks() - initialTime)
-
-            goal = inferGoal(trajectory[-1], aimPlayerGrid, bean1Grid, bean2Grid)
-            stepCount = stepCount + 1
-
-            noisePlayerGrid, firstIntentionFlag, noiseStep,realAction, ifnoise = self.awayFromTheGoalNoise(
-                trajectory[-1], bean1Grid, bean2Grid, aimAction, goal, firstIntentionFlag, noiseStep, stepCount)
-
-            realPlayerGrid = self.checkBoundary(noisePlayerGrid)
-
-            screen = self.drawNewState(bean1Grid, bean2Grid, realPlayerGrid)
-            if self.saveImageDir:
-                filenameList = os.listdir(self.saveImageDir)
-                pg.image.save(screen, self.saveImageDir + '/' + str(len(filenameList)) + '.png')
-            trajectory.append(tuple(realPlayerGrid))
-            aimActionList.append(aimAction)
-            goalList.append(goal)
-
-            pause = checkTerminationOfTrial(bean1Grid, bean2Grid, realPlayerGrid)
-
-        pg.time.wait(500)
-        if self.saveImageDir:
-            filenameList = os.listdir(self.saveImageDir)
-            pg.image.save(screen, self.saveImageDir + '/' + str(len(filenameList)) + '.png')
-
-        pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])
-        results["reactionTime"] = str(reactionTime)
-        results["trajectory"] = str(trajectory)
-        results["aimAction"] = str(aimActionList)
-        results["noisePoint"] = str(noiseStep)
-        results["goal"] = str(goalList)
-        return results
-
-class NormalTrialHumanAI():
-    def __init__(self, controller, drawNewState, drawText, normalNoise, checkBoundary):
-        self.controller = controller
-        self.drawNewState = drawNewState
-        self.drawText = drawText
-        self.normalNoise = normalNoise
-        self.checkBoundary = checkBoundary
-
-    def __call__(self, bean1Grid, bean2Grid, player1Grid, player2Grid, designValuesPlayer1, designValuesPlayer2, AIPolicy):
-        initialPlayer1Grid = player1Grid
-        initialPlayer2Grid = player2Grid
+    def __call__(self, bean1Grid, bean2Grid, initialPlayer1Grid, initialPlayer2Grid, noiseTypePlayer1, noiseTypePlayer2, designValuesRemainPlayer1, designValuesRemainPlayer2, AIPolicy):
 
         reactionTime = list()
         trajectoryPlayer1 = [initialPlayer1Grid]
@@ -282,12 +147,6 @@ class NormalTrialHumanAI():
         results = co.OrderedDict()
         aimActionListPlayer1 = list()
         aimActionListPlayer2 = list()
-        realActionListPlayer1 = list()
-        realActionListPlayer2 = list()
-
-        totalStep = int(np.linalg.norm(np.array(player1Grid) - np.array(bean1Grid), ord=1))
-        noiseStepPlayer1 = random.sample(list(range(1, totalStep + 1)), designValuesPlayer1)
-        noiseStepPlayer2 = random.sample(list(range(1, totalStep + 1)), designValuesPlayer2)
 
         stepCount = 0
         goalListPlayer1 = list()
@@ -295,141 +154,103 @@ class NormalTrialHumanAI():
         ifnoisePlayer1 = 0
         ifnoisePlayer2 = 0
 
+        noiseStepPlayer1 = None
+        noiseStepPlayer2 = None
+
+        ifModifedConditionPlayer1 = False
+        ifModifedConditionPlayer2 = False
+
+        firstIntentionFlagPlayer1 = False
+        firstIntentionFlagPlayer2 = False
+
         self.drawText("+", [0, 0, 0], [7, 7])
         pg.time.wait(1300)
         self.drawNewState(bean1Grid, bean2Grid, initialPlayer1Grid, initialPlayer2Grid, ifnoisePlayer1, ifnoisePlayer2)
         pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
 
-        realPlayer1Grid = initialPlayer1Grid
-        realPlayer2Grid = initialPlayer2Grid
+        realGridPlayer1 = initialPlayer1Grid
+        realGridPlayer2 = initialPlayer2Grid
 
         pause = True
 
         while pause:
             initialTime = time.get_ticks()
-            aimPlayer1Grid, aimAction, aimPlayer2Grid, aimAction2 = self.controller(realPlayer1Grid, realPlayer2Grid, bean1Grid, bean2Grid, AIPolicy)
+            aimPlayer1Grid, aimActionPlayer1, aimPlayer2Grid, aimActionPlayer2 = self.controller(realGridPlayer1, realGridPlayer2, bean1Grid, bean2Grid, AIPolicy)
             reactionTime.append(time.get_ticks() - initialTime)
-
-            goalPlayer1 = inferGoal(trajectoryPlayer1[-1], aimPlayer1Grid, bean1Grid, bean2Grid)
-            goalPlayer2 = inferGoal(trajectoryPlayer2[-1], aimPlayer2Grid, bean1Grid, bean2Grid)
-            goalListPlayer1.append(goalPlayer1)
-            goalListPlayer2.append(goalPlayer2)
-            aimActionListPlayer1.append(aimAction)
-            aimActionListPlayer2.append(aimAction2)
-
+            aimActionListPlayer1.append(aimActionPlayer1)
+            aimActionListPlayer2.append(aimActionPlayer2)
             stepCount = stepCount + 1
-            noisePlayer1Grid, realAction, ifnoisePlayer1 = self.normalNoise(trajectoryPlayer1[-1], aimAction, trajectoryPlayer1, noiseStepPlayer1, stepCount)
-            noisePlayer2Grid, realAction2, ifnoisePlayer2 = self.normalNoise(trajectoryPlayer2[-1], aimAction2, trajectoryPlayer2, noiseStepPlayer2, stepCount)
 
-            realPlayer1Grid = self.checkBoundary(noisePlayer1Grid)
-            realPlayer2Grid = self.checkBoundary(noisePlayer2Grid)
-            self.drawNewState(bean1Grid, bean2Grid, realPlayer1Grid, realPlayer2Grid, ifnoisePlayer1, ifnoisePlayer2)
-            trajectoryPlayer1.append(tuple(realPlayer1Grid))
-            trajectoryPlayer2.append(tuple(realPlayer2Grid))
-            realActionListPlayer1.append(realAction)
-            realActionListPlayer2.append(realAction2)
-
-            pause = checkTerminationOfTrial2P2G(bean1Grid, bean2Grid, realPlayer1Grid, realPlayer2Grid)
-
-        pg.time.wait(500)
-        pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])
-        results["aimActionPlayer1"] = str(aimActionListPlayer1)
-        results["reactionTime"] = str(reactionTime)
-
-        results["aimActionPlayer2"] = str(aimActionListPlayer2)
-        results["trajectoryPlayer1"] = str(trajectoryPlayer1)
-        results["trajectoryPlayer2"] = str(trajectoryPlayer2)
-        # results["realActionPlayer1"] = str(aimActionListPlayer1)
-        # results["realActionPlayer2"] = str(aimActionListPlayer2)
-        # results["noisePointPlayer1"] = str(noiseStepPlayer1)
-        # results["noisePointPlayer2"] = str(noiseStepPlayer2)
-        results["goalPlayer1"] = str(goalListPlayer1)
-        results["goalPlayer2"] = str(goalListPlayer2)
-        return results
-
-
-class SpecialTrialHumanAI():
-    def __init__(self, controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary):
-        self.controller = controller
-        self.drawNewState = drawNewState
-        self.drawText = drawText
-        self.awayFromTheGoalNoise = awayFromTheGoalNoise
-        self.checkBoundary = checkBoundary
-
-    def __call__(self, bean1Grid, bean2Grid, player1Grid, player2Grid,  designValuesPlayer1, designValuesPlayer2, AIPolicy):
-        initialPlayer1Grid = player1Grid
-        initialPlayer2Grid = player2Grid
-
-        initialTime = time.get_ticks()
-        reactionTime = list()
-        trajectoryPlayer1 = [initialPlayer1Grid]
-        trajectoryPlayer2 = [initialPlayer2Grid]
-
-        results = co.OrderedDict()
-        aimActionListPlayer1 = list()
-        aimActionListPlayer2 = list()
-        realActionListPlayer1 = list()
-        realActionListPlayer2 = list()
-
-        firstIntentionFlag = False
-        firstIntentionFlag2 = False
-        noiseStepPlayer1 = list()
-        noiseStepPlayer2 = list()
-        stepCount = 0
-        goalListPlayer1 = list()
-        goalListPlayer2 = list()
-
-        ifnoisePlayer1 = 0
-        ifnoisePlayer2 = 0
-        self.drawText("+", [0, 0, 0], [7, 7])
-        pg.time.wait(1300)
-        self.drawNewState(bean1Grid, bean2Grid, initialPlayer1Grid, initialPlayer2Grid, ifnoisePlayer1, ifnoisePlayer2)
-        pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
-
-        realPlayer1Grid = initialPlayer1Grid
-        realPlayer2Grid = initialPlayer2Grid
-        pause = True
-        while pause:
-            initialTime = time.get_ticks()
-            aimPlayer1Grid, aimAction,  aimPlayer2Grid, aimAction2 = self.controller(realPlayer1Grid, realPlayer2Grid, bean1Grid, bean2Grid, AIPolicy)
-            reactionTime.append(time.get_ticks() - initialTime)
-
-            goalPlayer1 = inferGoal(trajectoryPlayer1[-1], aimPlayer1Grid, bean1Grid, bean2Grid)
-            goalPlayer2 = inferGoal(trajectoryPlayer2[-1], aimPlayer2Grid, bean1Grid, bean2Grid)
+            currentGridPlayer1 = trajectoryPlayer1[-1]
+            currentGridPlayer2 = trajectoryPlayer2[-1]
+            goalPlayer1 = inferGoal(currentGridPlayer1, aimPlayer1Grid, bean1Grid, bean2Grid)
+            goalPlayer2 = inferGoal(currentGridPlayer2, aimPlayer2Grid, bean1Grid, bean2Grid)
             goalListPlayer1.append(goalPlayer1)
             goalListPlayer2.append(goalPlayer2)
 
-            stepCount = stepCount + 1
-            noisePlayer1Grid, firstIntentionFlag, noiseStepPlayer1, realActionPlayer1, ifnoisePlayer1 = self.awayFromTheGoalNoise(
-                trajectoryPlayer1[-1], bean1Grid, bean2Grid, aimAction, goalPlayer1, firstIntentionFlag, noiseStepPlayer1, stepCount)
-            noisePlayer2Grid, firstIntentionFlag2, noiseStepPlayer2, realActionPlayer2, ifnoisePlayer2 = self.awayFromTheGoalNoise(
-                trajectoryPlayer2[-1], bean1Grid, bean2Grid, aimAction2, goalPlayer2, firstIntentionFlag2, noiseStepPlayer2, stepCount)
+            ### Player1
+            conditionCountPlayer1 = designValuesRemainPlayer1.count('forceCommit')
+            if conditionCountPlayer1 != 0 and sum(goalListPlayer1) == 0 and stepCount >= 3: # if no intention revealed in n steps
+                noiseTypePlayer1 = "forceCommit"
+                ifModifedConditionPlayer1 = True
 
-            realPlayer1Grid = self.checkBoundary(noisePlayer1Grid)
-            realPlayer2Grid = self.checkBoundary(noisePlayer2Grid)
-            self.drawNewState(bean1Grid, bean2Grid, realPlayer1Grid, realPlayer2Grid, ifnoisePlayer1, ifnoisePlayer2)
-            trajectoryPlayer1.append(list(realPlayer1Grid))
-            trajectoryPlayer2.append(list(realPlayer2Grid))
-            aimActionListPlayer1.append(aimAction)
-            aimActionListPlayer2.append(aimAction)
-            realActionListPlayer1.append(realActionPlayer1)
-            realActionListPlayer2.append(realActionPlayer2)
+            #
+            if noiseTypePlayer1 == "pushForward":
+                noiseGridPlayer1, firstIntentionFlagPlayer1, realActionPlayer1, noiseStepPlayer1 = self.pushForwardNoise(stepCount, currentGridPlayer1, bean1Grid, bean2Grid, aimActionPlayer1, goalPlayer1, firstIntentionFlagPlayer1)
 
-            pause = checkTerminationOfTrial(bean1Grid, bean2Grid, realPlayer1Grid, realPlayer2Grid)
+            elif noiseTypePlayer1 == "pullBack":
+                noiseGridPlayer1, firstIntentionFlagPlayer1, realActionPlayer1, noiseStepPlayer1 = self.pullBackNoise(stepCount, currentGridPlayer1, bean1Grid, bean2Grid, aimActionPlayer1, goalPlayer1, firstIntentionFlagPlayer1)
+
+            elif noiseTypePlayer1 == "forceCommit":
+                noiseGridPlayer1, firstIntentionFlagPlayer1, realActionPlayer1, noiseStepPlayer1 = self.forceToCommitNoise(stepCount, currentGridPlayer1, bean1Grid, bean2Grid, aimActionPlayer1, goalListPlayer1, firstIntentionFlagPlayer1)
+
+            elif noiseTypePlayer1 == "noNoise":
+                noiseGridPlayer1 = aimPlayer1Grid
+
+            ### Player2
+            conditionCountPlayer2 = designValuesRemainPlayer2.count('forceCommit')
+            if conditionCountPlayer2 != 0 and sum(goalListPlayer2) == 0 and stepCount >= 3: # if no intention revealed in n steps
+                noiseTypePlayer2 = "forceCommit"
+                ifModifedConditionPlayer2 = True
+
+            #
+            if noiseTypePlayer2 == "pushForward":
+                noiseGridPlayer2, firstIntentionFlagPlayer2, realActionPlayer2, noiseStepPlayer2 = self.pushForwardNoise(stepCount, currentGridPlayer2, bean1Grid, bean2Grid, aimActionPlayer2, goalPlayer2, firstIntentionFlagPlayer2)
+
+            elif noiseTypePlayer2 == "pullBack":
+                noiseGridPlayer2, firstIntentionFlagPlayer2, realActionPlayer2, noiseStepPlayer2 = self.pullBackNoise(stepCount, currentGridPlayer2, bean1Grid, bean2Grid, aimActionPlayer2, goalPlayer2, firstIntentionFlagPlayer2)
+
+            elif noiseTypePlayer2 == "forceCommit":
+                noiseGridPlayer2, firstIntentionFlagPlayer2, realActionPlayer2, noiseStepPlayer2 = self.forceToCommitNoise(stepCount, currentGridPlayer2, bean1Grid, bean2Grid, aimActionPlayer2, goalListPlayer2, firstIntentionFlagPlayer2)
+
+            elif noiseTypePlayer2 == "noNoise":
+                noiseGridPlayer2 = aimPlayer2Grid
+
+            ###
+            realGridPlayer1 = self.checkBoundary(noiseGridPlayer1)
+            realGridPlayer2 = self.checkBoundary(noiseGridPlayer2)
+
+            self.drawNewState(bean1Grid, bean2Grid, realGridPlayer1, realGridPlayer2, ifnoisePlayer1, ifnoisePlayer2)
+
+            trajectoryPlayer1.append(tuple(realGridPlayer1))
+            trajectoryPlayer2.append(tuple(realGridPlayer2))
+
+            pause = checkTerminationOfTrial2P2G(bean1Grid, bean2Grid, realGridPlayer1, realGridPlayer2)
+
         pg.time.wait(500)
         pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])
         results["reactionTime"] = str(reactionTime)
-        results["trajectoryPlayer1"] = str(trajectoryPlayer1)
-        results["trajectoryPlayer2"] = str(trajectoryPlayer2)
+        results["noiseTypePlayer1"] = noiseTypePlayer1
+        results["noiseTypePlayer2"] = noiseTypePlayer2
         results["aimActionPlayer1"] = str(aimActionListPlayer1)
         results["aimActionPlayer2"] = str(aimActionListPlayer2)
-        results["realActionPlayer1"] = str(realActionListPlayer1)
-        results["realActionPlayer2"] = str(realActionListPlayer2)
+        results["trajectoryPlayer1"] = str(trajectoryPlayer1)
+        results["trajectoryPlayer2"] = str(trajectoryPlayer2)
         results["noisePointPlayer1"] = str(noiseStepPlayer1)
         results["noisePointPlayer2"] = str(noiseStepPlayer2)
         results["goalPlayer1"] = str(goalListPlayer1)
         results["goalPlayer2"] = str(goalListPlayer2)
-        return results
+        return results, noiseTypePlayer1, noiseTypePlayer2, ifModifedConditionPlayer1, ifModifedConditionPlayer2
 
 
 def checkTerminationOfPracTrial(bean1Grid, humanGrid):

@@ -9,19 +9,14 @@ import random
 
 
 def modify_list_after_index(x, index, new_value):
-    # Make a copy of the list to avoid modifying the original list directly
     modified_list = x.copy()
-    # Get the original value at the specified index
     original_value = x[index]
-    # Replace the value at the specified index with the new value
     modified_list[index] = new_value
-    # Adjust the list to maintain the balance by looking at elements after the specified index
     for i in range(index + 1, len(modified_list)):
         if modified_list[i] == new_value:
             modified_list[i] = original_value
             break
     return modified_list
-
 
 class ExperimentBumps4Blocks():
     def __init__(self, trial, writer, experimentValues, updateWorld, drawImage, resultsPath):
@@ -33,13 +28,11 @@ class ExperimentBumps4Blocks():
         self.resultsPath = resultsPath
 
     def __call__(self, noiseDesignValues, shapeDesignValues):
-
         shapeDesignValue = random.choice(shapeDesignValues)
 
         # for trialIndex, noiseType in enumerate(noiseDesignValues):
-        for trialIndex in range(0,len(noiseDesignValues)):
+        for trialIndex in range(0, len(noiseDesignValues)):
             print(noiseDesignValues)
-
             noiseType = noiseDesignValues[trialIndex]
 
             results = self.experimentValues.copy()
@@ -59,6 +52,50 @@ class ExperimentBumps4Blocks():
             self.writer(resultsDF)
 
 
+class ExperimentBumps4BlocksJoint():
+    def __init__(self, trial, writer, experimentValues, updateWorld, drawImage, resultsPath, runAIPolicy):
+        self.trial = trial
+        self.writer = writer
+        self.experimentValues = experimentValues
+        self.updateWorld = updateWorld
+        self.drawImage = drawImage
+        self.resultsPath = resultsPath
+        self.runAIPolicy = runAIPolicy
+
+    def __call__(self, noiseDesignValuesPlayer1, noiseDesignValuesPlayer2, shapeDesignValues):
+        shapeDesignValue = random.choice(shapeDesignValues)
+
+        # for trialIndex, noiseType in enumerate(noiseDesignValues):
+        for trialIndex in range(0, len(noiseDesignValuesPlayer1)):
+            noiseTypePlayer1 = noiseDesignValuesPlayer1[trialIndex]
+            noiseTypePlayer2 = noiseDesignValuesPlayer2[trialIndex]
+
+            print(noiseDesignValuesPlayer1)
+            print(noiseDesignValuesPlayer2)
+
+            results = self.experimentValues.copy()
+            player1Grid, player2Grid, target1Grid, target2Grid, direction = self.updateWorld(
+                shapeDesignValue[0], shapeDesignValue[1])
+
+            results["initPlayer1Grid"] = str(player1Grid)
+            results["initPlayer2Grid"] = str(player2Grid)
+            results["target1Grid"] = str(target1Grid)
+            results["target2Grid"] = str(target2Grid)
+
+            goalStates = [target1Grid, target2Grid]
+            AIPolicy = self.runAIPolicy(goalStates, obstacles=[])
+
+            trialData, trueNoiseTypePlayer1, trueNoiseTypePlayer2, ifModifedConditionPlayer1, ifModifedConditionPlayer2  = self.trial(target1Grid, target2Grid, player1Grid, player2Grid, noiseTypePlayer1, noiseTypePlayer2, noiseDesignValuesPlayer1[trialIndex:], noiseDesignValuesPlayer2[trialIndex:], AIPolicy)
+
+            if ifModifedConditionPlayer1:
+                noiseDesignValuesPlayer1 = modify_list_after_index(noiseDesignValuesPlayer1, trialIndex, trueNoiseTypePlayer1)
+
+            if ifModifedConditionPlayer2:
+                noiseDesignValuesPlayer2 = modify_list_after_index(noiseDesignValuesPlayer2, trialIndex, trueNoiseTypePlayer2)
+
+            results.update(trialData)
+            resultsDF = pd.DataFrame(results, index=[trialIndex])
+            self.writer(resultsDF)
 
 class ExperimentJoint():
     def __init__(self, normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath, runAIPolicy):

@@ -10,35 +10,35 @@ import sys
 sys.path.append(os.path.join(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.Visualization import DrawBackground, DrawNewState2P2G, DrawImage, DrawText, DrawLinkImage
-from src.Controller import Controller, NormalNoise, AwayFromTheGoalNoise, CheckBoundary
+from src.Controller import Controller, PushForwardNoise, PullBackNoise,ForceToCommitNoise, CheckBoundary
 from src.UpdateWorld import *
 from src.Writer import WriteDataFrameToCSV
-from src.Trial import NormalTrialHumanAI, SpecialTrialHumanAI
-from src.Experiment import ExperimentJoint
+from src.Trial import Trial4BlocksHumanAI
+from src.Experiment import ExperimentBumps4BlocksJoint
 from machinePolicy.valueIteration import RunVI
 
 
 def main():
     gridSize = 15
-    noise = 0
 
     bottom = [4, 6, 8]
     height = [5, 6, 7]
     shapeDesignValues = createShapeDesignValue(bottom, height)
 
-    noiseCondition = list(permutations([1, 2, 0], 3))
-    noiseCondition.append((1, 1, 1))
-
-    blockNumber = 3
-    noiseDesignValuesPlayer1 = createNoiseDesignValue(noiseCondition, blockNumber)
-    noiseDesignValuesPlayer2 = createNoiseDesignValue(noiseCondition, blockNumber)
-
-    # no noise
-    if noise == 0:
-        noiseDesignValuesPlayer1 = noiseDesignValuesPlayer2 = [0]*len(noiseDesignValuesPlayer2)
-
     direction = [0, 90, 180, 270]
     updateWorld = UpdateWorld(direction, gridSize)
+
+    noiseTypes = ["pushForward", "pullBack", "forceCommit", "noNoise"]
+    # noiseTypes = ["forceCommit"]
+
+    trialsPerBlock = 2
+
+    noiseDesignValuesPlayer1 = [i for i in noiseTypes for _ in range(trialsPerBlock)]
+    random.shuffle(noiseDesignValuesPlayer1)
+
+    noiseDesignValuesPlayer2 = [i for i in noiseTypes for _ in range(trialsPerBlock)]
+    random.shuffle(noiseDesignValuesPlayer2)
+
 
     pg.init()
     screenWidth = 800
@@ -51,6 +51,7 @@ def main():
         screen = pg.display.set_mode((screenWidth, screenHeight),pg.FULLSCREEN)
     else:
         screen = pg.display.set_mode((screenWidth, screenHeight))
+
     pg.display.init()
     pg.fastevent.init()
     leaveEdgeSpace = int(1/300 * screenWidth)
@@ -85,7 +86,8 @@ def main():
     drawImage = DrawImage(screen)
     drawLinkImage = DrawLinkImage(screen)
 
-#AI policy
+# AI policy
+    noise = 0.1
     gamma = 0.9
     goalReward = 30
     actionSpace = [(0, -1), (0, 1), (-1, 0), (1, 0)]
@@ -93,16 +95,19 @@ def main():
     softmaxBeta = 2.5
     runAIPolicy = RunVI(gridSize, actionSpace, noiseActionSpace, noise, gamma, goalReward, softmaxBeta)
 
-# game dynamic
+# Game dynamic
     checkBoundary = CheckBoundary([0, gridSize - 1], [0, gridSize - 1])
     controller = Controller(gridSize, softmaxBeta)
-    normalNoise = NormalNoise(controller)
-    awayFromTheGoalNoise = AwayFromTheGoalNoise(controller)
-    normalTrial = NormalTrialHumanAI(controller, drawNewState, drawText, normalNoise, checkBoundary)
-    specialTrial = SpecialTrialHumanAI(controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary)
-    experiment = ExperimentJoint(normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath, runAIPolicy)
 
-    # drawImage(introductionImage) # need to
+    pushForwardNoise = PushForwardNoise(controller)
+    pullBackNoise = PullBackNoise(controller)
+    forceToCommitNoise = ForceToCommitNoise(controller)
+
+    trial = Trial4BlocksHumanAI(controller, drawNewState, drawText, checkBoundary, pushForwardNoise, pullBackNoise, forceToCommitNoise)
+
+    experiment = ExperimentBumps4BlocksJoint(trial, writer, experimentValues, updateWorld, drawImage, resultsPath, runAIPolicy)
+
+    # drawImage(introductionImage) #
     # drawLinkImage(readyImage, 2000) # 5000
 
     drawImage(readyImage)
