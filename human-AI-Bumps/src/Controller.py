@@ -49,6 +49,9 @@ class SoftmaxPolicy:
         softMaxActionDict = dict(zip(actionDict.keys(), softmaxProbabilityList))
         return softMaxActionDict
 
+def gridTransition(state,action):
+    nextState = tuple([state[0]+action[0],state[1]+action[1]])
+    return nextState
 
 
 class PushForwardNoise():
@@ -222,7 +225,7 @@ class Controller():
         aimePlayer2Grid = transition(player2Grid, action2)
 
         if player2Grid in [targetGrid1, targetGrid2]:
-            action2 =(0,0)
+            action2 = (0,0)
             aimePlayer2Grid = player2Grid
         return aimePlayer1Grid, action1, aimePlayer2Grid, action2
 

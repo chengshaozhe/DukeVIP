@@ -13,8 +13,8 @@ from src.Visualization import DrawBackground, DrawNewState1P2G, DrawImage, DrawT
 from src.Controller import SingleController,PushForwardNoise, PullBackNoise,ForceToCommitNoise, CheckBoundary
 from src.UpdateWorld import *
 from src.Writer import WriteDataFrameToCSV
-from src.Trial import Trial4Blocks
-from src.Experiment import ExperimentBumps4Blocks
+from src.Trial import Trial2Disruptions
+from src.Experiment import ExperimentTwoBumps
 
 
 def main():
@@ -22,16 +22,17 @@ def main():
     gridSize = 15
 
     bottom = [4, 6, 8]
-    height = [6, 7, 8]
+    height = [5, 6, 7]
     shapeDesignValues = createShapeDesignValue(bottom, height)
     direction = [0, 90, 180, 270]
 
     updateWorld = UpdateWorld1P2G(direction, gridSize)
 
-    noiseTypes = ["pushForward", "pullBack", "forceCommit", "noNoise"]
+    # noiseTypes = ["pushForward", "pullBack", "forceCommit", "noNoise"]
+    noiseTypes = ["pushForward", "pullBack"]
     # noiseTypes = ["forceCommit"]
 
-    trialsPerBlock = 2
+    trialsPerBlock = 4
     noiseDesignValues = [i for i in noiseTypes for _ in range(trialsPerBlock)]
     random.shuffle(noiseDesignValues)
 
@@ -78,11 +79,10 @@ def main():
 
     pushForwardNoise = PushForwardNoise(controller)
     pullBackNoise = PullBackNoise(controller)
-    forceToCommitNoise = ForceToCommitNoise(controller)
 
-    trial = Trial4Blocks(controller, drawNewState, drawText, checkBoundary, pushForwardNoise, pullBackNoise, forceToCommitNoise)
+    trial = Trial2Disruptions(controller, drawNewState, drawText, checkBoundary, pushForwardNoise, pullBackNoise)
 
-    experiment = ExperimentBumps4Blocks(trial, writer, experimentValues, updateWorld, drawImage, resultsPath)
+    experiment = ExperimentTwoBumps(trial, writer, experimentValues, updateWorld, drawImage)
 
 # start
     # drawImage(introductionImage)

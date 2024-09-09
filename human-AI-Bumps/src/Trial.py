@@ -44,6 +44,81 @@ def checkTerminationOfTrial2P2G(bean1Grid, bean2Grid, humanGrid, humanGrid2):
         pause = True
     return pause
 
+
+class Trial2Disruptions():
+    def __init__(self, controller, drawNewState, drawText, checkBoundary, pushForwardNoise ,pullBackNoise):
+        self.controller = controller
+        self.drawNewState = drawNewState
+        self.drawText = drawText
+        self.checkBoundary = checkBoundary
+        self.pushForwardNoise = pushForwardNoise
+        self.pullBackNoise = pullBackNoise
+
+    def __call__(self, bean1Grid, bean2Grid, initPlayerGrid, noiseType, noiseDesignValuesRemained):
+        results = co.OrderedDict()
+        stepCount = 0
+        reactionTime = list()
+        aimActionList = list()
+        goalList = list()
+        results = co.OrderedDict()
+        noiseStep = None
+
+        trajectory = [initPlayerGrid]
+
+        self.drawText("+", [0, 0, 0], [7, 7])
+        pg.time.wait(1000)
+        self.drawNewState(bean1Grid, bean2Grid, initPlayerGrid)
+        pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
+
+        realPlayerGrid = initPlayerGrid
+
+        firstIntentionFlag = False
+        ifnoise = False
+        pause = True
+        while pause:
+            initialTime = time.get_ticks()
+            aimPlayerGrid, aimAction = self.controller(realPlayerGrid)
+            reactionTime.append(time.get_ticks() - initialTime)
+            aimActionList.append(aimAction)
+            stepCount = stepCount + 1
+
+            currentGrid = trajectory[-1]
+            goal = inferGoal(currentGrid, aimPlayerGrid, bean1Grid, bean2Grid)
+            goalList.append(goal)
+
+            ###
+            if noiseType == "pushForward":
+                noisePlayerGrid, firstIntentionFlag, realAction, noiseStep = self.pushForwardNoise(stepCount, currentGrid, bean1Grid, bean2Grid, aimAction, goal, firstIntentionFlag)
+
+            elif noiseType == "pullBack":
+                noisePlayerGrid, firstIntentionFlag, realAction, noiseStep = self.pullBackNoise(stepCount, currentGrid, bean1Grid, bean2Grid, aimAction, goal, firstIntentionFlag)
+
+            elif noiseType == "noNoise":
+                noisePlayerGrid = aimPlayerGrid
+
+            realPlayerGrid = self.checkBoundary(noisePlayerGrid)
+
+
+            realPlayerGrid = [int(realPlayerGrid[0]),int(realPlayerGrid[1])]
+            trajectory.append(tuple(realPlayerGrid))
+            self.drawNewState(bean1Grid, bean2Grid, realPlayerGrid)
+
+            pause = checkTerminationOfTrial(bean1Grid, bean2Grid, realPlayerGrid)
+
+        pg.time.wait(500)
+        pg.event.set_blocked([pg.KEYDOWN, pg.KEYUP])
+
+        results["noiseType"] = noiseType
+        results["reactionTime"] = str(reactionTime)
+        results["trajectory"] = str(trajectory)
+        results["aimAction"] = str(aimActionList)
+        results["noisePoint"] = str(noiseStep)
+        results["goal"] = str(goalList)
+
+        return results, noiseType
+
+
+
 class Trial4Blocks():
     def __init__(self, controller, drawNewState, drawText, checkBoundary, pushForwardNoise ,pullBackNoise,forceToCommitNoise):
         self.controller = controller
@@ -89,7 +164,7 @@ class Trial4Blocks():
 
             ### decide when to focre?
             isIntentionNotRevealed = sum(goalList) == 0
-            print(isIntentionNotRevealed)
+            # print(isIntentionNotRevealed)
 
             conditionCount = noiseDesignValuesRemained.count('forceCommit')
             if conditionCount != 0 and isIntentionNotRevealed and stepCount >= 3: # if no intention revealed in n steps

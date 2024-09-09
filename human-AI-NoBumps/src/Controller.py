@@ -160,7 +160,7 @@ class Controller():
         aimePlayer2Grid = transition(player2Grid, action2)
 
         if player2Grid in [targetGrid1, targetGrid2]:
-            action2 =(0,0)
+            action2 = (0,0)
             aimePlayer2Grid = player2Grid
         return aimePlayer1Grid, action1, aimePlayer2Grid, action2
 

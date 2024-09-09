@@ -18,6 +18,35 @@ def modify_list_after_index(x, index, new_value):
             break
     return modified_list
 
+class ExperimentTwoBumps():
+    def __init__(self, trial, writer, experimentValues, updateWorld, drawImage):
+        self.trial = trial
+        self.writer = writer
+        self.experimentValues = experimentValues
+        self.updateWorld = updateWorld
+        self.drawImage = drawImage
+
+    def __call__(self, noiseDesignValues, shapeDesignValues):
+        shapeDesignValue = random.choice(shapeDesignValues)
+
+        # for trialIndex, noiseType in enumerate(noiseDesignValues):
+        for trialIndex in range(0, len(noiseDesignValues)):
+            # print(noiseDesignValues)
+            noiseType = noiseDesignValues[trialIndex]
+
+            results = self.experimentValues.copy()
+            playerGrid, bean1Grid, bean2Grid, direction = self.updateWorld(shapeDesignValue[0], shapeDesignValue[1])
+
+            results["initPlayer1Grid"] = str(playerGrid)
+            results["target1Grid"] = str(bean1Grid)
+            results["target2Grid"] = str(bean2Grid)
+
+            trialData, trueNoiseType = self.trial(bean1Grid, bean2Grid, playerGrid, noiseType, noiseDesignValues[trialIndex:])
+
+            results.update(trialData)
+            resultsDF = pd.DataFrame(results, index=[trialIndex])
+            self.writer(resultsDF)
+
 class ExperimentBumps4Blocks():
     def __init__(self, trial, writer, experimentValues, updateWorld, drawImage, resultsPath):
         self.trial = trial
@@ -32,7 +61,7 @@ class ExperimentBumps4Blocks():
 
         # for trialIndex, noiseType in enumerate(noiseDesignValues):
         for trialIndex in range(0, len(noiseDesignValues)):
-            print(noiseDesignValues)
+            # print(noiseDesignValues)
             noiseType = noiseDesignValues[trialIndex]
 
             results = self.experimentValues.copy()
