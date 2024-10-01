@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trajectory Simulation</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>2D World Trajectory Simulation</h1>
+    <input type="file" id="fileInput" />
+    <canvas id="trajectoryCanvas" width="600" height="600"></canvas>
+
+    <div id="controls">
+        <button onclick="prevTrial()">Previous Trial</button>
+        <button onclick="nextTrial()">Next Trial</button>
+        <p>Trial: <span id="trialNumber">1</span></p>
+        <p>Player 1 Steps: <span id="player1Steps">0</span></p>
+        <p>Player 2 Steps: <span id="player2Steps">0</span></p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        const canvas = document.getElementById('trajectoryCanvas');
+        const ctx = canvas.getContext('2d');
+        const gridSize = 40;
+        let trialIndex = 0;
+        let trajectories = [];
+
+        // Function to draw the grid
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#ddd';
+
+            for (let x = 0; x <= canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+
+            for (let y = 0; y <= canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        // Function to draw a player step using a hollow circle with step number and transparency for overlap
+        function drawPlayer(x, y, color, stepNumber, overlap = false) {
+            const pixelX = x * gridSize + gridSize / 2;
+            const pixelY = y * gridSize + gridSize / 2;
+            const radius = gridSize / 3;
+
+            // Adjust transparency for overlap
+            ctx.globalAlpha = overlap ? 0.5 : 1.0; // Use 50% transparency if overlap is detected
+
+            // Draw the hollow circle
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(pixelX, pixelY, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+
+            // Draw the step number inside the circle
+            ctx.fillStyle = 'black';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(stepNumber, pixelX, pixelY);
+
+            ctx.globalAlpha = 1.0; // Reset transparency to default
+        }
+
+        // Function to load and parse the CSV file
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                Papa.parse(file, {
+                    header: true,
+                    complete: function(results) {
+                        console.log("Parsed Results:", results.data);
+                        loadTrajectories(results.data);
+                    },
+                    error: function(error) {
+                        console.error("Error parsing CSV:", error);
+                    }
+                });
+            }
+        });
+
+        // Helper function to convert the CSV format to valid JSON format
+        function fixTrajectoryFormat(trajectory) {
+            return trajectory
+                .replace(/\(/g, '[')
+                .replace(/\)/g, ']')
+                .replace(/'/g, '"');
+        }
+
+        // Function to load trajectories from CSV data
+        function loadTrajectories(data) {
+            trajectories = data.map((row, index) => {
+                try {
+                    const player1Trajectory = JSON.parse(fixTrajectoryFormat(row.trajectoryPlayer1));
+                    const player2Trajectory = JSON.parse(fixTrajectoryFormat(row.trajectoryPlayer2));
+                    return { player1: player1Trajectory, player2: player2Trajectory };
+                } catch (error) {
+                    console.error(`Error parsing trajectory on row ${index + 1}:`, error);
+                    return null;
+                }
+            }).filter(Boolean); // Filter out invalid entries
+
+            if (trajectories.length > 0) {
+                trialIndex = 0;
+                document.getElementById('trialNumber').innerText = trialIndex + 1;
+                drawTrajectory();
+            } else {
+                console.error("No valid trajectories loaded.");
+            }
+        }
+
+        // Function to detect overlapping steps
+        function isOverlapping(x1, y1, x2, y2) {
+            return x1 === x2 && y1 === y2;
+        }
+
+        // Function to draw the trajectory for the current trial
+        function drawTrajectory() {
+            if (trajectories.length === 0) return;
+
+            drawGrid();
+
+            const trial = trajectories[trialIndex];
+            if (!trial) {
+                console.error(`No trajectory found for trial ${trialIndex}`);
+                return;
+            }
+
+            // Display the number of steps for Player 1 and Player 2
+            document.getElementById('player1Steps').innerText = trial.player1.length;
+            document.getElementById('player2Steps').innerText = trial.player2.length;
+
+            // Draw Player 1's and Player 2's trajectories with transparency for overlap
+            for (let i = 0; i < Math.max(trial.player1.length, trial.player2.length); i++) {
+                const [x1, y1] = trial.player1[i] || [];
+                const [x2, y2] = trial.player2[i] || [];
+
+                // Check if Player 1 and Player 2 overlap
+                const overlap = isOverlapping(x1, y1, x2, y2);
+
+                if (x1 !== undefined && y1 !== undefined) {
+                    drawPlayer(x1, y1, 'blue', i + 1, overlap);
+                }
+
+                if (x2 !== undefined && y2 !== undefined) {
+                    drawPlayer(x2, y2, 'red', i + 1, overlap);
+                }
+            }
+        }
+
+        // Function to handle the next trial
+        function nextTrial() {
+            if (trialIndex < trajectories.length - 1) {
+                trialIndex++;
+                document.getElementById('trialNumber').innerText = trialIndex + 1;
+                drawTrajectory();
+            }
+        }
+
+        // Function to handle the previous trial
+        function prevTrial() {
+            if (trialIndex > 0) {
+                trialIndex--;
+                document.getElementById('trialNumber').innerText = trialIndex + 1;
+                drawTrajectory();
+            }
+        }
+    </script>
+</body>
+</html>
