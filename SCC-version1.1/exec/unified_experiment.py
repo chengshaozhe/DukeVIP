@@ -23,7 +23,7 @@ from machinePolicy.valueIteration import RunVI
 # Unified Main Function
 def main():
     experimentValues = co.OrderedDict()
-    experimentValues["name"] = 'test'
+    experimentValues["name"] = 'test-name'
 
 # game env
     gridSize = 15
@@ -78,6 +78,40 @@ def main():
 # game logic
     checkBoundary = CheckBoundary([0, gridSize - 1], [0, gridSize - 1])
     keyBoradActionDict = {pg.K_UP: (0, -1), pg.K_DOWN: (0, 1), pg.K_LEFT: (-1, 0), pg.K_RIGHT: (1, 0)}
+
+
+    # PHASE 0: demo
+    def demo_joint_no_bumps(numberOfTrials = 8):
+        writerPath = resultsPath + "demo-" + experimentValues["name"] + '.csv'
+        writer = WriteDataFrameToCSV(writerPath)
+
+        updateWorld = UpdateWorld(direction, gridSize)
+        drawNewState = DrawNewState2P2G(screen, drawBackground, targetColor, playerColor, player2Color, targetRadius, playerRadius)
+
+        shapeDesignValues = random.sample(allShapeDesignValues, numberOfTrials)
+        noiseDesignValuesPlayer1 = noiseDesignValuesPlayer2 = [0]*numberOfTrials
+
+        #AI policy
+        noise = 0
+        gamma = 0.9
+        goalReward = 30
+        actionSpace = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+        noiseActionSpace = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+        softmaxBeta = 2.5
+        runAIPolicy = RunVI(gridSize, actionSpace, noiseActionSpace, noise, gamma, goalReward, softmaxBeta)
+
+        # game dynamic
+        controller = Controller(gridSize, softmaxBeta)
+        normalNoise = NormalNoise(controller)
+        awayFromTheGoalNoise = AwayFromTheGoalNoise(controller)
+        normalTrial = NormalTrialHumanAI(controller, drawNewState, drawText, normalNoise, checkBoundary)
+        specialTrial = SpecialTrialHumanAI(controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary)
+        experiment = ExperimentJoint(normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath, runAIPolicy)
+
+        drawImage(readyImage)
+        experiment(noiseDesignValuesPlayer1, noiseDesignValuesPlayer2, shapeDesignValues)
+        drawImage(finishImage)
+
 
     # PHASE 1: Practice Free Play (File 0)
     def phase1_free_play():
@@ -205,8 +239,7 @@ def main():
 
 # Execute all phases
     # phase1_free_play()
-    # demo
-    phase4_joint_no_bumps(numberOfTrials = 1)
+    demo_joint_no_bumps(numberOfTrials = 1)
 
     phase2_one_player_one_target()
     phase3_one_player_two_targets()
