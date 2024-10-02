@@ -45,10 +45,10 @@ def checkTerminationOfTrial2P2G(bean1Grid, bean2Grid, humanGrid, humanGrid2):
     return pause
 
 class NormalTrial1P2G():
-    def __init__(self, controller, drawNewState, drawText, normalNoise, checkBoundary, saveImageDir=None):
+    def __init__(self, controller, drawNewState, drawFixation, normalNoise, checkBoundary, saveImageDir=None):
         self.controller = controller
         self.drawNewState = drawNewState
-        self.drawText = drawText
+        self.drawFixation = drawFixation
         self.normalNoise = normalNoise
         self.checkBoundary = checkBoundary
         self.saveImageDir = saveImageDir
@@ -66,7 +66,7 @@ class NormalTrial1P2G():
         totalSteps = int(np.linalg.norm(np.array(playerGrid) - np.array(bean1Grid), ord=1))
         noiseStep = random.sample(list(range(1, totalSteps + 1)), designValues)
 
-        self.drawText("+", [0, 0, 0], [7, 7])
+        self.drawFixation()
         pg.time.wait(1300)
         screen = self.drawNewState(bean1Grid, bean2Grid, initialPlayerGrid)
         pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
@@ -114,10 +114,10 @@ class NormalTrial1P2G():
         return results
 
 class SpecialTrial1P2G():
-    def __init__(self, controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary, saveImageDir=None):
+    def __init__(self, controller, drawNewState, drawFixation, awayFromTheGoalNoise, checkBoundary, saveImageDir=None):
         self.controller = controller
         self.drawNewState = drawNewState
-        self.drawText = drawText
+        self.drawFixation = drawFixation
         self.awayFromTheGoalNoise = awayFromTheGoalNoise
         self.checkBoundary = checkBoundary
         self.saveImageDir = saveImageDir
@@ -133,7 +133,7 @@ class SpecialTrial1P2G():
         noiseStep = list()
         stepCount = 0
         goalList = list()
-        self.drawText("+", [0, 0, 0], [7, 7])
+        self.drawFixation()
         pg.time.wait(1300)
         screen = self.drawNewState(bean1Grid, bean2Grid, initialPlayerGrid)
         pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
@@ -181,10 +181,10 @@ class SpecialTrial1P2G():
         return results
 
 class NormalTrialHumanAI():
-    def __init__(self, controller, drawNewState, drawText, normalNoise, checkBoundary):
+    def __init__(self, controller, drawNewState, drawFixation, normalNoise, checkBoundary):
         self.controller = controller
         self.drawNewState = drawNewState
-        self.drawText = drawText
+        self.drawFixation = drawFixation
         self.normalNoise = normalNoise
         self.checkBoundary = checkBoundary
 
@@ -212,7 +212,9 @@ class NormalTrialHumanAI():
         ifnoisePlayer1 = 0
         ifnoisePlayer2 = 0
 
-        self.drawText("+", [0, 0, 0], [7, 7])
+        # self.drawFixation()
+        self.drawFixation()
+
         pg.time.wait(1300)
         self.drawNewState(bean1Grid, bean2Grid, initialPlayer1Grid, initialPlayer2Grid, ifnoisePlayer1, ifnoisePlayer2)
         pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
@@ -266,10 +268,10 @@ class NormalTrialHumanAI():
 
 
 class SpecialTrialHumanAI():
-    def __init__(self, controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary):
+    def __init__(self, controller, drawNewState, drawFixation, awayFromTheGoalNoise, checkBoundary):
         self.controller = controller
         self.drawNewState = drawNewState
-        self.drawText = drawText
+        self.drawFixation = drawFixation
         self.awayFromTheGoalNoise = awayFromTheGoalNoise
         self.checkBoundary = checkBoundary
 
@@ -298,7 +300,7 @@ class SpecialTrialHumanAI():
 
         ifnoisePlayer1 = 0
         ifnoisePlayer2 = 0
-        self.drawText("+", [0, 0, 0], [7, 7])
+        self.drawFixation()
         pg.time.wait(1300)
         self.drawNewState(bean1Grid, bean2Grid, initialPlayer1Grid, initialPlayer2Grid, ifnoisePlayer1, ifnoisePlayer2)
         pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
@@ -357,10 +359,10 @@ def checkTerminationOfPracTrial(bean1Grid, humanGrid):
     return pause
 
 class PracTrial():
-    def __init__(self, controller, drawNewState, drawText, checkBoundary):
+    def __init__(self, controller, drawNewState, drawFixation, checkBoundary):
         self.controller = controller
         self.drawNewState = drawNewState
-        self.drawText = drawText
+        self.drawFixation = drawFixation
         self.checkBoundary = checkBoundary
 
     def __call__(self, player1Grid, bean1Grid):
@@ -372,7 +374,7 @@ class PracTrial():
         aimActionListPlayer1 = list()
         trajectoryPlayer1 = [initialPlayer1Grid]
 
-        self.drawText("+", [0, 0, 0], [7, 7])
+        self.drawFixation()
         pg.time.wait(1300)
         self.drawNewState(bean1Grid, initialPlayer1Grid)
         pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
@@ -403,10 +405,10 @@ class PracTrial():
 
 
 class PracTrialFreePlayNoBumps():
-    def __init__(self, controller, drawNewState, drawText, checkBoundary, playTime):
+    def __init__(self, controller, drawNewState, drawFixation, checkBoundary, playTime):
         self.controller = controller
         self.drawNewState = drawNewState
-        self.drawText = drawText
+        self.drawFixation = drawFixation
         self.checkBoundary = checkBoundary
         self.playTime = playTime
 
@@ -449,11 +451,11 @@ class PracTrialFreePlayNoBumps():
 
 
 class PracTrialFreePlay():
-    def __init__(self, normalNoise, controller, drawNewState, drawText, checkBoundary, playTime):
+    def __init__(self, normalNoise, controller, drawNewState, drawFixation, checkBoundary, playTime):
         self.normalNoise = normalNoise
         self.controller = controller
         self.drawNewState = drawNewState
-        self.drawText = drawText
+        self.drawFixation = drawFixation
         self.checkBoundary = checkBoundary
         self.playTime = playTime
 
@@ -467,7 +469,7 @@ class PracTrialFreePlay():
         aimActionListPlayer1 = list()
         trajectoryPlayer1 = [initialPlayer1Grid]
 
-        # self.drawText("+", [0, 0, 0], [7, 7])
+        # self.drawFixation()
         # pg.time.wait(1300)
         self.drawNewState([], initialPlayer1Grid)
         pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])
@@ -500,10 +502,10 @@ class PracTrialFreePlay():
         return results
 
 class Trial2Disruptions():
-    def __init__(self, controller, drawNewState, drawText, checkBoundary, pushForwardNoise ,pullBackNoise):
+    def __init__(self, controller, drawNewState, drawFixation, checkBoundary, pushForwardNoise ,pullBackNoise):
         self.controller = controller
         self.drawNewState = drawNewState
-        self.drawText = drawText
+        self.drawFixation = drawFixation
         self.checkBoundary = checkBoundary
         self.pushForwardNoise = pushForwardNoise
         self.pullBackNoise = pullBackNoise
@@ -519,7 +521,7 @@ class Trial2Disruptions():
 
         trajectory = [initPlayerGrid]
 
-        self.drawText("+", [0, 0, 0], [7, 7])
+        self.drawFixation()
         pg.time.wait(1000)
         self.drawNewState(bean1Grid, bean2Grid, initPlayerGrid)
         pg.event.set_allowed([pg.KEYDOWN, pg.KEYUP, pg.QUIT])

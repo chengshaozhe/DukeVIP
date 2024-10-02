@@ -19,7 +19,6 @@ from src.Experiment import *
 from src.Writer import WriteDataFrameToCSV
 from machinePolicy.valueIteration import RunVI
 
-
 # Unified Main Function
 def main():
     experimentValues = co.OrderedDict()
@@ -39,38 +38,27 @@ def main():
 
 # pygame init
     pg.init()
-    screenWidth = 800
-    screenHeight = 800
-
-    fullscreen = 0 # True or False
-    if fullscreen:
-        screen = pg.display.set_mode((screenWidth, screenHeight), pg.FULLSCREEN)
-    else:
-        screen = pg.display.set_mode((screenWidth, screenHeight))
-    pg.display.init()
-    pg.fastevent.init()
+    grid_resolution = 900
+    screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
 
 # setup drawing
-    leaveEdgeSpace = int(1/300 * screenWidth)
-    lineWidth = int(1/600 * screenWidth)
     backgroundColor = [255, 255, 255]
-    lineColor = [0, 0, 0]
     targetColor = [255, 50, 50]
     playerColor = [50, 50, 255]
     player2Color = [0, 155, 50]
 
-    targetRadius = int(1/60 * screenWidth)
-    playerRadius = int(1/60 * screenWidth)
+    targetRadius = int(1/60 * grid_resolution)
+    playerRadius = int(1/60 * grid_resolution)
     textColorTuple = (255, 50, 50)
-    textSize = int(1/14 * screenWidth)
+    textSize = int(1/14 * grid_resolution)
 
-    drawBackground = DrawBackground(screen, gridSize, leaveEdgeSpace, backgroundColor, lineColor, lineWidth, textColorTuple)
-    drawText = DrawText(screen, drawBackground, textSize)
+
+    drawBackground = DrawBackground(screen, gridSize, grid_resolution, backgroundColor)
+    drawFixation = DrawFixation(screen, drawBackground)
     drawImage = DrawImage(screen)
 
     introImage1 = pg.image.load(picturePath + 'intro1.png')
-    introImage1 = pg.transform.scale(introImage1, (screenWidth, screenHeight))
-
+    introImage1 = pg.transform.scale(introImage1, (grid_resolution, grid_resolution))
 
     readyImage = pg.image.load(picturePath + 'ready.png')
     finishImage = pg.image.load(picturePath + 'finish.png')
@@ -81,7 +69,7 @@ def main():
 
 
     # PHASE 0: demo
-    def demo_joint_no_bumps(numberOfTrials = 8):
+    def demo_joint_no_bumps(numberOfTrials):
         writerPath = resultsPath + "demo-" + experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
 
@@ -104,8 +92,8 @@ def main():
         controller = Controller(gridSize, softmaxBeta)
         normalNoise = NormalNoise(controller)
         awayFromTheGoalNoise = AwayFromTheGoalNoise(controller)
-        normalTrial = NormalTrialHumanAI(controller, drawNewState, drawText, normalNoise, checkBoundary)
-        specialTrial = SpecialTrialHumanAI(controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary)
+        normalTrial = NormalTrialHumanAI(controller, drawNewState, drawFixation, normalNoise, checkBoundary)
+        specialTrial = SpecialTrialHumanAI(controller, drawNewState, drawFixation, awayFromTheGoalNoise, checkBoundary)
         experiment = ExperimentJoint(normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath, runAIPolicy)
 
         drawImage(readyImage)
@@ -123,13 +111,13 @@ def main():
         expDesignValues = random.sample(allShapeDesignValues, numOfPracRounds)
 
         introductionImage = pg.image.load(picturePath + 'introduction.png')
-        introductionImage = pg.transform.scale(introductionImage, (screenWidth, screenHeight))
+        introductionImage = pg.transform.scale(introductionImage, (grid_resolution, grid_resolution))
 
         drawNewState = DrawNewState1P1G(screen, drawBackground, targetColor, playerColor, targetRadius, playerRadius)
 
         updateWorld = UpdateWorld(direction, gridSize)
         controller = SingleController(keyBoradActionDict)
-        pracTrial = PracTrialFreePlayNoBumps(controller, drawNewState, drawText, checkBoundary, playTime)
+        pracTrial = PracTrialFreePlayNoBumps(controller, drawNewState, drawFixation, checkBoundary, playTime)
 
         experiment = PracExperiment1P1G(pracTrial, writer, experimentValues, updateWorld, drawImage, resultsPath)
 
@@ -139,18 +127,17 @@ def main():
         drawImage(finishImage)
 
     # PHASE 2: Practice One Player, One Target (File 1)
-    def phase2_one_player_one_target():
+    def phase2_one_player_one_target(numOfPracRounds):
         writerPath = resultsPath + "Prac-1P1G-"+ experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
 
-        numOfPracRounds = 5
         expDesignValues = random.sample(allShapeDesignValues, numOfPracRounds)
 
         drawNewState = DrawNewState1P1G(screen, drawBackground, targetColor, playerColor, targetRadius, playerRadius)
 
         updateWorld = UpdateWorld(direction, gridSize)
         controller = SingleController(keyBoradActionDict)
-        pracTrial = PracTrial(controller, drawNewState, drawText, checkBoundary)
+        pracTrial = PracTrial(controller, drawNewState, drawFixation, checkBoundary)
         experiment = PracExperiment1P1G(pracTrial, writer, experimentValues, updateWorld, drawImage, resultsPath)
 
         drawImage(readyImage)
@@ -159,7 +146,7 @@ def main():
 
 
     # PHASE 3: One Player, Two Targets (File 2)
-    def phase3_one_player_two_targets(numberOfTrials = 8):
+    def phase3_one_player_two_targets(numberOfTrials):
         writerPath = resultsPath + "Exp-Joint-HumanAI-" + experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
 
@@ -172,8 +159,8 @@ def main():
         controller = SingleController(keyBoradActionDict)
         normalNoise = NormalNoise(controller)
         awayFromTheGoalNoise = AwayFromTheGoalNoise(controller)
-        normalTrial = NormalTrial1P2G(controller, drawNewState, drawText, normalNoise, checkBoundary)
-        specialTrial = SpecialTrial1P2G(controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary)
+        normalTrial = NormalTrial1P2G(controller, drawNewState, drawFixation, normalNoise, checkBoundary)
+        specialTrial = SpecialTrial1P2G(controller, drawNewState, drawFixation, awayFromTheGoalNoise, checkBoundary)
         experiment = ExperimentBumps(normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath)
 
         # drawImage(introductionImage)
@@ -182,7 +169,7 @@ def main():
         drawImage(finishImage)
 
     # PHASE 4: Joint Task, No Bumps (File 3)
-    def phase4_joint_no_bumps(numberOfTrials = 8):
+    def phase4_joint_no_bumps(numberOfTrials):
         writerPath = resultsPath + "Exp-Joint-HumanAI-" + experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
 
@@ -205,8 +192,8 @@ def main():
         controller = Controller(gridSize, softmaxBeta)
         normalNoise = NormalNoise(controller)
         awayFromTheGoalNoise = AwayFromTheGoalNoise(controller)
-        normalTrial = NormalTrialHumanAI(controller, drawNewState, drawText, normalNoise, checkBoundary)
-        specialTrial = SpecialTrialHumanAI(controller, drawNewState, drawText, awayFromTheGoalNoise, checkBoundary)
+        normalTrial = NormalTrialHumanAI(controller, drawNewState, drawFixation, normalNoise, checkBoundary)
+        specialTrial = SpecialTrialHumanAI(controller, drawNewState, drawFixation, awayFromTheGoalNoise, checkBoundary)
         experiment = ExperimentJoint(normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath, runAIPolicy)
 
         drawImage(readyImage)
@@ -215,13 +202,13 @@ def main():
 
 
     # PHASE 5: Solo with Noise and Bumps (File 4)
-    def phase5_solo_with_noise():
+    def phase5_solo_with_noise(numberOfTrials = 8):
         writerPath = resultsPath + "Solo-Bumps-" + experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
 
         updateWorld = UpdateWorld1P2G(direction, gridSize)
         noiseTypes = ["pushForward", "pullBack"]
-        trialsPerBlock = 4
+        trialsPerBlock = numberOfTrials // len(noiseTypes)
         noiseDesignValues = [i for i in noiseTypes for _ in range(trialsPerBlock)]
         random.shuffle(noiseDesignValues)
 
@@ -230,7 +217,7 @@ def main():
         controller = SingleController(keyBoradActionDict)
         pushForwardNoise = PushForwardNoise(controller)
         pullBackNoise = PullBackNoise(controller)
-        trial = Trial2Disruptions(controller, drawNewState, drawText, checkBoundary, pushForwardNoise, pullBackNoise)
+        trial = Trial2Disruptions(controller, drawNewState, drawFixation, checkBoundary, pushForwardNoise, pullBackNoise)
         experiment = ExperimentTwoBumps(trial, writer, experimentValues, updateWorld, drawImage)
 
         drawImage(readyImage)
@@ -240,11 +227,10 @@ def main():
 # Execute all phases
     # phase1_free_play()
     demo_joint_no_bumps(numberOfTrials = 1)
-
-    phase2_one_player_one_target()
-    phase3_one_player_two_targets()
-    phase4_joint_no_bumps()
-    phase5_solo_with_noise()
+    phase2_one_player_one_target(numOfPracRounds = 5)
+    phase3_one_player_two_targets(numberOfTrials = 8)
+    phase4_joint_no_bumps(numberOfTrials = 8)
+    phase5_solo_with_noise(numberOfTrials = 8)
 
     pg.quit()
 
