@@ -62,11 +62,15 @@ def main():
     drawFixation = DrawFixation(screen, drawBackground)
     drawImage = DrawImage(screen)
 
-    introImage1 = pg.image.load(picturePath + 'intro1.png')
-    introImage1 = pg.transform.scale(introImage1, (grid_resolution, grid_resolution))
+    introImage1 = pg.transform.scale(pg.image.load(picturePath + 'intro1.png'), (grid_resolution, grid_resolution))
+    introImage2 = pg.transform.scale(pg.image.load(picturePath + 'intro2.png'), (grid_resolution, grid_resolution))
 
-    introImage2 = pg.image.load(picturePath + 'intro2.png')
-    introImage2 = pg.transform.scale(introImage2, (grid_resolution, grid_resolution))
+    prac1Image = pg.transform.scale(pg.image.load(picturePath + 'prac1.png'), (grid_resolution, grid_resolution))
+    prac2Image = pg.transform.scale(pg.image.load(picturePath + 'prac2.png'), (grid_resolution, grid_resolution))
+
+    formal1Image = pg.transform.scale(pg.image.load(picturePath + 'formal1.png'), (grid_resolution, grid_resolution))
+    formal2Image = pg.transform.scale(pg.image.load(picturePath + 'formal2.png'), (grid_resolution, grid_resolution))
+
 
     readyImage = pg.image.load(picturePath + 'ready.png')
     finishImage = pg.image.load(picturePath + 'finish.png')
@@ -75,8 +79,6 @@ def main():
     checkBoundary = CheckBoundary([0, gridSize - 1], [0, gridSize - 1])
     keyBoradActionDict = {pg.K_UP: (0, -1), pg.K_DOWN: (0, 1), pg.K_LEFT: (-1, 0), pg.K_RIGHT: (1, 0)}
 
-
-    # PHASE 0: demo
     def demo_joint_no_bumps(numberOfTrials):
         writerPath = resultsPath + "demo-" + experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
@@ -135,7 +137,7 @@ def main():
         drawImage(finishImage)
 
     # PHASE 2: Practice One Player, One Target (File 1)
-    def phase2_one_player_one_target(numOfPracRounds):
+    def prac1_one_player_one_target(numOfPracRounds):
         writerPath = resultsPath + "Prac-1P1G-"+ experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
 
@@ -148,13 +150,13 @@ def main():
         pracTrial = PracTrial(controller, drawNewState, drawFixation, checkBoundary)
         experiment = PracExperiment1P1G(pracTrial, writer, experimentValues, updateWorld, drawImage, resultsPath)
 
-        drawImage(readyImage)
+        drawImage(prac1Image)
         experiment(expDesignValues)
         drawImage(finishImage)
 
 
     # PHASE 3: One Player, Two Targets (File 2)
-    def phase3_one_player_two_targets(numberOfTrials):
+    def Prac2_one_player_two_targets(numberOfTrials):
         writerPath = resultsPath + "Exp-Joint-HumanAI-" + experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
 
@@ -171,13 +173,12 @@ def main():
         specialTrial = SpecialTrial1P2G(controller, drawNewState, drawFixation, awayFromTheGoalNoise, checkBoundary)
         experiment = ExperimentBumps(normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath)
 
-        # drawImage(introductionImage)
-        drawImage(readyImage)
+        drawImage(prac2Image)
         experiment(noiseDesignValues, shapeDesignValues)
         drawImage(finishImage)
 
     # PHASE 4: Joint Task, No Bumps (File 3)
-    def phase4_joint_no_bumps(numberOfTrials):
+    def formal1_joint_no_bumps(numberOfTrials):
         writerPath = resultsPath + "Exp-Joint-HumanAI-" + experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
 
@@ -204,13 +205,13 @@ def main():
         specialTrial = SpecialTrialHumanAI(controller, drawNewState, drawFixation, awayFromTheGoalNoise, checkBoundary)
         experiment = ExperimentJoint(normalTrial, specialTrial, writer, experimentValues, updateWorld, drawImage, resultsPath, runAIPolicy)
 
-        drawImage(readyImage)
+        drawImage(formal1Image)
         experiment(noiseDesignValuesPlayer1, noiseDesignValuesPlayer2, shapeDesignValues)
         drawImage(finishImage)
 
 
     # PHASE 5: Solo with Noise and Bumps (File 4)
-    def phase5_solo_with_noise(numberOfTrials = 8):
+    def formal2_solo_with_noise(numberOfTrials = 8):
         writerPath = resultsPath + "Solo-Bumps-" + experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
 
@@ -228,7 +229,7 @@ def main():
         trial = Trial2Disruptions(controller, drawNewState, drawFixation, checkBoundary, pushForwardNoise, pullBackNoise)
         experiment = ExperimentTwoBumps(trial, writer, experimentValues, updateWorld, drawImage)
 
-        drawImage(readyImage)
+        drawImage(formal2Image)
         experiment(noiseDesignValues, allShapeDesignValues)
         drawImage(finishImage)
 
@@ -238,11 +239,10 @@ def main():
     drawImage(introImage1)
     drawImage(introImage2)
 
-    # demo_joint_no_bumps(numberOfTrials = 1)
-    phase2_one_player_one_target(numOfPracRounds = 5)
-    phase3_one_player_two_targets(numberOfTrials = 8)
-    phase4_joint_no_bumps(numberOfTrials = 8)
-    phase5_solo_with_noise(numberOfTrials = 8)
+    prac1_one_player_one_target(numOfPracRounds = 5)
+    Prac2_one_player_two_targets(numberOfTrials = 8)
+    formal1_joint_no_bumps(numberOfTrials = 8)
+    formal2_solo_with_noise(numberOfTrials = 8)
 
     pg.quit()
 
