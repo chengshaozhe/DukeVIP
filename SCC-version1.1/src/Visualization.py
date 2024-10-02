@@ -2,8 +2,6 @@ import pygame as pg
 import numpy as np
 import os
 
-
-
 class DrawBackground():
     def __init__(self, screen, grid_size, grid_resolution, background_color):
         self.screen = screen
@@ -19,6 +17,14 @@ class DrawBackground():
 
     def __call__(self):
         self.screen.fill((0, 0, 0))
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    pg.quit()
+                    exit()
+
         pg.draw.rect(self.screen, self.background_color, (self.grid_x, self.grid_y, self.grid_resolution, self.grid_resolution))
 
         for x in range(1, self.grid_size):
@@ -27,6 +33,65 @@ class DrawBackground():
             pg.draw.line(self.screen, (0, 0, 0), (self.grid_x, self.grid_y + x * self.cell_size),
                          (self.grid_x + self.grid_resolution, self.grid_y + x * self.cell_size), 1)
         return
+
+
+
+class DrawIntroductionText():
+    def __init__(self, screen, drawBackground, text_lines, font_size=24, text_color=(0, 0, 0), start_y=100, line_spacing=10):
+        self.screen = screen
+        self.drawBackground = drawBackground
+        self.text_lines = text_lines  # List of sentences/lines
+        self.font_size = font_size
+        self.text_color = text_color
+        self.start_y = start_y  # The starting y position for the first line
+        self.line_spacing = line_spacing  # Space between lines
+        self.grid_x = drawBackground.grid_x
+        self.grid_y = drawBackground.grid_y
+        self.grid_resolution = drawBackground.grid_resolution
+
+    def __call__(self):
+        # Draw the background first
+        self.screen.fill((255, 255, 255))
+
+        pause = True
+
+        # Initialize font
+        font = pg.font.Font(None, self.font_size)
+
+        # Set the initial y-coordinate for the first line
+        y = self.start_y
+
+        # Get the screen width to center the text horizontally
+        screen_width = self.screen.get_width()
+
+        # Loop through each line of text and draw it centered horizontally
+        for line in self.text_lines:
+            # Render the text into an image (surface)
+            text_surface = font.render(line, True, self.text_color)
+
+            # Get the rectangle of the text and center it horizontally
+            text_rect = text_surface.get_rect(center=(screen_width // 2, y))
+
+            # Draw the text on the screen
+            self.screen.blit(text_surface, text_rect)
+
+            # Move y-coordinate down for the next line
+            y += text_rect.height + self.line_spacing
+
+        pg.display.flip()
+        while pause:
+            pg.time.wait(10)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        pg.quit()
+                        exit()
+                if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                    pause = False
+            pg.time.wait(10)
+
 
 
 class DrawNewState2P2G():

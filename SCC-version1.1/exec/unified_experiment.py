@@ -39,7 +39,12 @@ def main():
 # pygame init
     pg.init()
     grid_resolution = 900
-    screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+
+    FULLSCREEN = 1
+    if FULLSCREEN:
+        screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+    else:
+        screen = pg.display.set_mode((grid_resolution, grid_resolution))
 
 # setup drawing
     backgroundColor = [255, 255, 255]
@@ -59,6 +64,9 @@ def main():
 
     introImage1 = pg.image.load(picturePath + 'intro1.png')
     introImage1 = pg.transform.scale(introImage1, (grid_resolution, grid_resolution))
+
+    introImage2 = pg.image.load(picturePath + 'intro2.png')
+    introImage2 = pg.transform.scale(introImage2, (grid_resolution, grid_resolution))
 
     readyImage = pg.image.load(picturePath + 'ready.png')
     finishImage = pg.image.load(picturePath + 'finish.png')
@@ -224,9 +232,13 @@ def main():
         experiment(noiseDesignValues, allShapeDesignValues)
         drawImage(finishImage)
 
+
 # Execute all phases
     # phase1_free_play()
-    demo_joint_no_bumps(numberOfTrials = 1)
+    drawImage(introImage1)
+    drawImage(introImage2)
+
+    # demo_joint_no_bumps(numberOfTrials = 1)
     phase2_one_player_one_target(numOfPracRounds = 5)
     phase3_one_player_two_targets(numberOfTrials = 8)
     phase4_joint_no_bumps(numberOfTrials = 8)

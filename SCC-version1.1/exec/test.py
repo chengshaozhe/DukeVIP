@@ -102,3 +102,29 @@ while running:
     draw_shapes(targets, players)
 
 pg.quit()
+
+
+
+
+# # introduction
+# intro_text = [
+#     "In this game there are two hungry travelers,",
+#     "who need to reach a restaurant as soon as possible to get some food.",
+#     "One of the travelers is you, this blue dot (points to blue dot).",
+#     "The other traveler is my friend Alex, he is this green dot (points to green dot).",
+#     "On this map, there are restaurants, which we can say are these red squares.",
+#     "Sometimes there is one restaurant and sometimes there are two restaurants.",
+#     "Sometimes Alex will be there, and sometimes he won’t, and it will just be you playing."
+# ]
+
+# draw_intro_text = DrawIntroductionText(
+#     screen=screen,
+#     drawBackground=drawBackground,
+#     text_lines=intro_text,
+#     font_size=40,
+#     text_color=(0, 0, 0),  # Black text
+#     start_y=200,  # Starting y position for the first line of text
+#     line_spacing=30  # Space between lines
+# )
+
+# draw_intro_text()
