@@ -157,7 +157,7 @@ def main():
 
     # PHASE 3: One Player, Two Targets (File 2)
     def Prac2_one_player_two_targets(numberOfTrials):
-        writerPath = resultsPath + "Exp-Joint-HumanAI-" + experimentValues["name"] + '.csv'
+        writerPath = resultsPath + "Exp-1P2G-NoBumps-" + experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
 
         shapeDesignValues = random.sample(allShapeDesignValues, numberOfTrials)
