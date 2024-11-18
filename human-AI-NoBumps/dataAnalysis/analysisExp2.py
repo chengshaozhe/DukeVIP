@@ -89,18 +89,18 @@ if __name__ == '__main__':
     from pymer4.models import Lmer
 
     dfLogit = df
-    # dfLogit = df[df.age == '7-year-olds']
+    dfLogit = df[df.age == '5-year-olds']
 
-    model = Lmer("isReachDiffGoal ~ firstIntentionStepHuman + (1|name)",
+    model = Lmer("isReachDiffGoal ~ firstIntentionStepDesireAI + (1|name)",
                   data=dfLogit, family = 'binomial')
     print(model.fit())
 
-    ax = sns.regplot(x="firstIntentionStepHuman", y="isReachDiffGoal", x_jitter = 0.5,  scatter_kws = {"alpha": 0.1}, data=model.data, fit_reg=True)
+    ax = sns.regplot(x="firstIntentionStepDesireAI", y="isReachDiffGoal", x_jitter = 0.5,  scatter_kws = {"alpha": 0.1}, data=model.data, fit_reg=True)
     ax.spines['right'].set_color('none')
     ax.spines['top'].set_color('none')
     plt.rcParams['svg.fonttype'] = 'none'
 
-    plt.xlabel('intetion first revealing step', fontsize=12, color='black')
+    # plt.xlabel('intetion first revealing step', fontsize=12, color='black')
     plt.ylabel('Reached different destination', fontsize=12, color='black')
     plt.axhline(y=0.5, color='k', linestyle='--', alpha=0.5)
     plt.show()
