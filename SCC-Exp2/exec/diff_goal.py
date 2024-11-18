@@ -122,7 +122,7 @@ def main():
 
     # PHASE 4: Joint Task, No Bumps (File 3)
     def formal1_joint_no_bumps(numberOfTrials):
-        writerPath = resultsPath + "Exp-Joint-HumanAI-" + experimentValues["name"] + '.csv'
+        writerPath = resultsPath + "Exp-Joint-HumanAI-diffGoal-" + experimentValues["name"] + '.csv'
         writer = WriteDataFrameToCSV(writerPath)
 
         updateWorld = UpdateWorld(direction, gridSize)
