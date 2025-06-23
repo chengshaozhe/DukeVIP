@@ -40,7 +40,7 @@ def main():
     pg.init()
     grid_resolution = 900
 
-    FULLSCREEN = 1
+    FULLSCREEN = 0
     if FULLSCREEN:
         screen = pg.display.set_mode((0, 0), pg.FULLSCREEN)
     else:
